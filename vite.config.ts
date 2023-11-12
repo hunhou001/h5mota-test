@@ -16,4 +16,10 @@ export default defineConfig({
       localsConvention: "camelCase",
     },
   },
+
+  server: {
+    proxy: {
+      "/api": "https://test.mota.press",
+    },
+  },
 });

@@ -6,11 +6,12 @@ import styles from "./App.module.less";
 import References from "./References";
 import DrawingBoard from "./DrawingBoard";
 import ToolBar from "./ToolBar";
+import ScoreTable from "./ScoreTable";
 
 function App() {
   return (
     <>
-      <div className={styles.topbar}>
+      {/* <div className={styles.topbar}>
         <TopBar />
       </div>
       <div className={styles.main}>
@@ -23,7 +24,8 @@ function App() {
         <div className={styles.rightSection}>
           <References />
         </div>
-      </div>
+      </div> */}
+      <ScoreTable />
     </>
   );
 }
