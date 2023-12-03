@@ -7,6 +7,7 @@ import References from "./References";
 import DrawingBoard from "./DrawingBoard";
 import ToolBar from "./ToolBar";
 import ScoreTable from "./ScoreTable";
+import ApplyTower from "./ApplyTower";
 
 function App() {
   return (
@@ -25,7 +26,7 @@ function App() {
           <References />
         </div>
       </div> */}
-      <ScoreTable />
+      <div>欢迎页面（预定）</div>
     </>
   );
 }
