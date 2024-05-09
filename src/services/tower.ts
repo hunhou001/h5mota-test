@@ -7,11 +7,23 @@ interface applytowerRequest {
   file: File;
 }
 
-interface applytowerResponse extends BaseResponse {}
+interface applytowerResponse extends BaseResponse {
+  code: 0;
+  data: Object;
+}
+
+interface CreateTowerErrorResponse extends BaseResponse {
+  code: -4;
+  data: {
+    bgm_remote: boolean;
+    code: number;
+    message: string;
+  };
+}
 
 export const requestApplyTower = wrapPost<
   applytowerRequest,
-  applytowerResponse
+  applytowerResponse | CreateTowerErrorResponse
 >("/api/tower/create");
 
 interface edittowerRequest {

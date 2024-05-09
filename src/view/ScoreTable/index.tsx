@@ -48,7 +48,7 @@ const ScoreTable: FC = () => {
     return <Descriptions row data={data} />;
   };
 
-  const getScoreData = useQuery([], async () => {
+  const getScoreData = useQuery("requestSubmissions", async () => {
     if (!towername) return [];
     const data = await requestSubmissions({ tower_name: towername });
     if (data.code === 0) {

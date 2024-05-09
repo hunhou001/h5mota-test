@@ -1,10 +1,21 @@
-import { Badge, Button, Col, Form, Input, Row, Toast } from "@douyinfe/semi-ui";
+import {
+  Badge,
+  Button,
+  Col,
+  Form,
+  Input,
+  Modal,
+  Progress,
+  Row,
+  Toast,
+} from "@douyinfe/semi-ui";
 import Section from "@douyinfe/semi-ui/lib/es/form/section";
-import { FC } from "react";
+import { FC, useState } from "react";
 import styles from "./index.module.less";
 import { IconPlus } from "@douyinfe/semi-icons";
 import { requestApplyTower } from "@/services/tower";
-import { ShowMessage } from "@/services/utils";
+import axios, { ShowMessage, createFormData } from "@/services/utils";
+import { useLoading } from "@/utils/use";
 
 const ApplyTower: FC = () => {
   const initValue = {
@@ -13,6 +24,11 @@ const ApplyTower: FC = () => {
     tester: [] as string[],
     file: [] as any[],
   };
+  const strokeArr = [
+    { percent: 0, color: "blue" },
+    { percent: 100, color: "hsla(125, 50%, 46% / 1)" },
+  ];
+  const [uploadProgress, setProgress] = useState<number>(0);
 
   const validateName = (name: string) => {
     if (!name) return "英文名不能为空！";
@@ -44,24 +60,41 @@ const ApplyTower: FC = () => {
     return "";
   };
 
-  const handleSubmit = async (value: typeof initValue) => {
-    const validate =
-      validateName(value.name) ||
-      validateTesters(value.tester) ||
-      validateTitle(value.title) ||
-      validateFile(value.file);
-    if (validate) {
-      Toast.error(validate);
-      return;
+  const [submitLoading, handleSubmit] = useLoading(
+    async (value: typeof initValue) => {
+      const validate =
+        validateName(value.name) ||
+        validateTesters(value.tester) ||
+        validateTitle(value.title) ||
+        validateFile(value.file);
+      if (validate) {
+        Toast.error(validate);
+        return;
+      }
+      const data = await requestApplyTower(
+        {
+          ...value,
+          file: value.file[0].fileInstance,
+        },
+        {
+          onUploadProgress: (e) => {
+            if (!e.total) return;
+            console.log(e.loaded, e.total);
+            setProgress(((e.loaded / e.total) * 100) | 0);
+          },
+        }
+      );
+      if (data.code === 0) {
+        console.log(data);
+      } else if (data.code === -4) {
+        Modal.error({
+          title: "发布失败",
+          width: "85%",
+          content: <pre className={styles.message}>{data.data.message}</pre>,
+        });
+      }
     }
-    const data = await requestApplyTower({
-      ...value,
-      file: value.file[0].fileInstance,
-    });
-    if (data.code === 0) {
-      console.log(data);
-    }
-  };
+  );
 
   return (
     <Form initValues={initValue} className={styles.applyTower}>
@@ -104,7 +137,21 @@ const ApplyTower: FC = () => {
               </Form.Upload>
             </Row>
           </Section>
-          <Button onClick={() => handleSubmit(values)}>提交</Button>
+          <Progress
+            percent={uploadProgress}
+            stroke={strokeArr}
+            strokeGradient={true}
+            showInfo
+            size="large"
+            aria-label="file download speed"
+          />
+          <Button
+            loading={submitLoading}
+            onClick={() => handleSubmit(values)}
+            style={{ marginTop: "10px" }}
+          >
+            提交
+          </Button>
         </>
       )}
     </Form>

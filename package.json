@@ -24,6 +24,8 @@
     "react-query": "^3.39.3",
     "react-use": "^17.4.0",
     "ts-pattern": "^5.0.5",
+    "vite-plugin-multi-pages": "^0.0.14",
+    "vite-plugin-virtual-mpa": "^1.11.0",
     "zustand": "^4.4.6"
   },
   "devDependencies": {

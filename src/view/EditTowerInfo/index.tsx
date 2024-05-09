@@ -26,6 +26,7 @@ import Section from "@douyinfe/semi-ui/lib/es/form/section";
 import { ShowMessage } from "@/services/utils";
 import { IconPlus } from "@douyinfe/semi-icons";
 import { customRequestArgs } from "@douyinfe/semi-ui/lib/es/upload";
+import MainHeader from "../MainHeader";
 
 const EditConfig: FC = () => {
   // const initValue = {
@@ -33,7 +34,7 @@ const EditConfig: FC = () => {
   //   title: "",
   //   tester: [] as string[],
   // };
-  const getInitValue = useQuery([], async () => {
+  const getInitValue = useQuery("requestEditTowerInfo", async () => {
     if (!towername)
       return {
         name: "",
@@ -117,7 +118,6 @@ const EditConfig: FC = () => {
       return;
     }
     if (!file.fileInstance) return;
-    console.log(file.fileInstance);
     const data = await requestTowerFileUpdate({
       file: file.fileInstance,
       name: initValue.name,
@@ -129,6 +129,7 @@ const EditConfig: FC = () => {
 
   return (
     <>
+      <MainHeader />
       {initValue && initValue.name === towername && (
         <>
           <Form className={styles.towerInfo}>
