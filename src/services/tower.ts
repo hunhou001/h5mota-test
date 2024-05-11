@@ -61,9 +61,11 @@ interface towerFileUpdateRequest {
   file: File;
 }
 
-interface towerFileUpdateResponse extends BaseResponse {}
+interface towerFileUpdateResponse extends BaseResponse {
+  code: 0;
+}
 
 export const requestTowerFileUpdate = wrapPost<
   towerFileUpdateRequest,
-  towerFileUpdateResponse
+  towerFileUpdateResponse | CreateTowerErrorResponse
 >("/api/tower/update");

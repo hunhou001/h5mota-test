@@ -10,6 +10,7 @@ import {
   IllustrationNoResult,
   IllustrationNoResultDark,
 } from "@douyinfe/semi-illustrations";
+import MainHeader from "../MainHeader";
 
 const ScoreTable: FC = () => {
   const columns = [
@@ -72,37 +73,41 @@ const ScoreTable: FC = () => {
 
   return (
     <>
-      {ScoreData &&
-        ScoreData.map(([hard, oneHard]) => (
-          <div className={styles.Table}>
-            <h3>{hard}</h3>
-            <Collapse>
-              {oneHard &&
-                oneHard.map(([ending, scoredata], index) => (
-                  <Collapse.Panel itemKey={index.toString()} header={ending}>
-                    <Table
-                      rowKey={"id"}
-                      dataSource={scoredata}
-                      columns={columns}
-                      expandedRowRender={expandRowRender}
-                      pagination={false}
-                    />
-                  </Collapse.Panel>
-                ))}
-            </Collapse>
-          </div>
-        ))}
+      <MainHeader />
+      <div className={styles.mainCard}>
+        <h2>测试员成绩</h2>
+        {ScoreData &&
+          ScoreData.map(([hard, oneHard]) => (
+            <div className={styles.Table}>
+              <h3>{hard}</h3>
+              <Collapse>
+                {oneHard &&
+                  oneHard.map(([ending, scoredata], index) => (
+                    <Collapse.Panel itemKey={index.toString()} header={ending}>
+                      <Table
+                        rowKey={"id"}
+                        dataSource={scoredata}
+                        columns={columns}
+                        expandedRowRender={expandRowRender}
+                        pagination={false}
+                      />
+                    </Collapse.Panel>
+                  ))}
+              </Collapse>
+            </div>
+          ))}
 
-      {(!ScoreData || ScoreData.length === 0) && (
-        <Empty
-          className={styles.Table}
-          image={<IllustrationNoResult style={{ width: 150, height: 150 }} />}
-          darkModeImage={
-            <IllustrationNoResultDark style={{ width: 150, height: 150 }} />
-          }
-          description={"搜索无结果"}
-        />
-      )}
+        {(!ScoreData || ScoreData.length === 0) && (
+          <Empty
+            className={styles.Table}
+            image={<IllustrationNoResult style={{ width: 150, height: 150 }} />}
+            darkModeImage={
+              <IllustrationNoResultDark style={{ width: 150, height: 150 }} />
+            }
+            description={"搜索无结果"}
+          />
+        )}
+      </div>
     </>
   );
 };

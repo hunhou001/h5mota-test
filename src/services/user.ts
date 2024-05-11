@@ -13,8 +13,23 @@ export const requestGetUserInfo = wrapGet<
 
 interface myTowerRequest {}
 
-interface myTowerResponse extends BaseResponse {}
+export interface towerInfo {
+  are_you_ready: number;
+  author: number;
+  create_time: number;
+  update_time: number;
+  name: string;
+  title: string;
+  tester: string;
+}
+interface myTowerResponse extends BaseResponse {
+  data: towerInfo[];
+}
 
 export const requestMyTower = wrapGet<myTowerRequest, myTowerResponse>(
   "/api/queryMyTower"
+);
+
+export const requestMyTestTower = wrapGet<myTowerRequest, myTowerResponse>(
+  "/api/queryMyTest"
 );

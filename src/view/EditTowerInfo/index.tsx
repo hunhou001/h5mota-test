@@ -5,11 +5,13 @@ import {
   Empty,
   Form,
   Input,
+  Modal,
+  Progress,
   Row,
   Toast,
   Upload,
 } from "@douyinfe/semi-ui";
-import { FC } from "react";
+import { FC, useState } from "react";
 import styles from "./index.module.less";
 import {
   requestEditTower,
@@ -23,7 +25,6 @@ import {
   IllustrationNoResultDark,
 } from "@douyinfe/semi-illustrations";
 import Section from "@douyinfe/semi-ui/lib/es/form/section";
-import { ShowMessage } from "@/services/utils";
 import { IconPlus } from "@douyinfe/semi-icons";
 import { customRequestArgs } from "@douyinfe/semi-ui/lib/es/upload";
 import MainHeader from "../MainHeader";
@@ -64,6 +65,11 @@ const EditConfig: FC = () => {
     tester: string[];
   };
   const towername = useSearchParam("tower_name");
+  const strokeArr = [
+    { percent: 0, color: "blue" },
+    { percent: 100, color: "hsla(125, 50%, 46% / 1)" },
+  ];
+  const [uploadProgress, setProgress] = useState<number>(0);
 
   const validateName = (name: string) => {
     if (!name) return "英文名不能为空！";
@@ -118,12 +124,27 @@ const EditConfig: FC = () => {
       return;
     }
     if (!file.fileInstance) return;
-    const data = await requestTowerFileUpdate({
-      file: file.fileInstance,
-      name: initValue.name,
-    });
+    const data = await requestTowerFileUpdate(
+      {
+        file: file.fileInstance,
+        name: initValue.name,
+      },
+      {
+        onUploadProgress: (e) => {
+          if (!e.total) return;
+          setProgress(((e.loaded / e.total) * 100) | 0);
+        },
+      }
+    );
     if (data.code === 0) {
       onSuccess(data.message);
+      setProgress(0);
+    } else if (data.code === -4) {
+      Modal.error({
+        title: "发布失败",
+        width: "85%",
+        content: <pre className={styles.message}>{data.data.message}</pre>,
+      });
     } else onError({});
   };
 
@@ -186,6 +207,15 @@ const EditConfig: FC = () => {
                 </Button>
               </Upload>
             </Row>
+            <div style={{ height: "10px" }}></div>
+            <Progress
+              percent={uploadProgress}
+              stroke={strokeArr}
+              strokeGradient={true}
+              showInfo
+              size="large"
+              aria-label="file download speed"
+            />
           </Section>
         </>
       )}

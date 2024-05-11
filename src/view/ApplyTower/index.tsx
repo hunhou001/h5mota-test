@@ -14,8 +14,8 @@ import { FC, useState } from "react";
 import styles from "./index.module.less";
 import { IconPlus } from "@douyinfe/semi-icons";
 import { requestApplyTower } from "@/services/tower";
-import axios, { ShowMessage, createFormData } from "@/services/utils";
 import { useLoading } from "@/utils/use";
+import MainHeader from "../MainHeader";
 
 const ApplyTower: FC = () => {
   const initValue = {
@@ -79,13 +79,13 @@ const ApplyTower: FC = () => {
         {
           onUploadProgress: (e) => {
             if (!e.total) return;
-            console.log(e.loaded, e.total);
             setProgress(((e.loaded / e.total) * 100) | 0);
           },
         }
       );
       if (data.code === 0) {
-        console.log(data);
+        location.href = `/info/?tower_name=${value.name}`;
+        setProgress(0);
       } else if (data.code === -4) {
         Modal.error({
           title: "发布失败",
@@ -97,64 +97,67 @@ const ApplyTower: FC = () => {
   );
 
   return (
-    <Form initValues={initValue} className={styles.applyTower}>
-      {({ formState, values, formApi }) => (
-        <>
-          <Section text={"发塔信息"}>
-            <Row>
-              <Form.Input
-                field="name"
-                label="塔的英文标识符（英文，无空格，来自全塔属性name项目）"
-                validate={validateName}
-              ></Form.Input>
-              <Form.Input
-                field="title"
-                label="塔的中文名"
-                validate={validateTitle}
-              ></Form.Input>
-              <Form.TagInput
-                field="tester"
-                label="测试员列表（填数字uid，最多十人）"
-                validate={validateTesters}
-              ></Form.TagInput>
-              <Form.Upload
-                action=""
-                field="file"
-                uploadTrigger="custom"
-                limit={1}
-                maxSize={1024 * 200}
-                accept=".zip"
-                label="压缩包(zip格式)"
-              >
-                <Button
-                  // disabled={values.file.length >= 1}
-                  icon={<IconPlus />}
-                  theme="light"
-                  style={{ marginRight: 8 }}
+    <>
+      <MainHeader />
+      <Form initValues={initValue} className={styles.applyTower}>
+        {({ formState, values, formApi }) => (
+          <>
+            <Section text={"发塔信息"}>
+              <Row>
+                <Form.Input
+                  field="name"
+                  label="塔的英文标识符（英文，无空格，来自全塔属性name项目）"
+                  validate={validateName}
+                ></Form.Input>
+                <Form.Input
+                  field="title"
+                  label="塔的中文名"
+                  validate={validateTitle}
+                ></Form.Input>
+                <Form.TagInput
+                  field="tester"
+                  label="测试员列表（填数字uid，最多十人）"
+                  validate={validateTesters}
+                ></Form.TagInput>
+                <Form.Upload
+                  action=""
+                  field="file"
+                  uploadTrigger="custom"
+                  limit={1}
+                  maxSize={1024 * 200}
+                  accept=".zip"
+                  label="压缩包(zip格式)"
                 >
-                  选择文件
-                </Button>
-              </Form.Upload>
-            </Row>
-          </Section>
-          <Progress
-            percent={uploadProgress}
-            stroke={strokeArr}
-            strokeGradient={true}
-            showInfo
-            size="large"
-            aria-label="file download speed"
-          />
-          <Button
-            loading={submitLoading}
-            onClick={() => handleSubmit(values)}
-            style={{ marginTop: "10px" }}
-          >
-            提交
-          </Button>
-        </>
-      )}
-    </Form>
+                  <Button
+                    // disabled={values.file.length >= 1}
+                    icon={<IconPlus />}
+                    theme="light"
+                    style={{ marginRight: 8 }}
+                  >
+                    选择文件
+                  </Button>
+                </Form.Upload>
+              </Row>
+            </Section>
+            <Progress
+              percent={uploadProgress}
+              stroke={strokeArr}
+              strokeGradient={true}
+              showInfo
+              size="large"
+              aria-label="file download speed"
+            />
+            <Button
+              loading={submitLoading}
+              onClick={() => handleSubmit(values)}
+              style={{ marginTop: "10px" }}
+            >
+              提交
+            </Button>
+          </>
+        )}
+      </Form>
+    </>
   );
 };
 
