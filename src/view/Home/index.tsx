@@ -2,13 +2,14 @@ import { FC, useMemo } from "react";
 import { useQuery } from "react-query";
 import { requestMyTestTower, requestMyTower, towerInfo } from "@/services/user";
 import styles from "./index.module.less";
-import { Button, Empty, Table } from "@douyinfe/semi-ui";
+import { Button, Empty, Table, Typography } from "@douyinfe/semi-ui";
 import {
   IllustrationNoResult,
   IllustrationNoResultDark,
 } from "@douyinfe/semi-illustrations";
 import { formatTime } from "@/utils/formatTime";
 const { Column } = Table;
+const { Text } = Typography;
 
 const MainHeader: FC = () => {
   const getMyTower = useQuery("requestMyTower", async () => {
@@ -48,7 +49,9 @@ const MainHeader: FC = () => {
     <>
       <div className={styles.mainCard}>
         <h2>便捷功能</h2>
-        <Button onClick={() => (location.href = "/applytower")}>发新塔</Button>
+        <Button onClick={() => (location.href = "/workbench/applytower")}>
+          发新塔
+        </Button>
       </div>
       <div className={styles.mainCard}>
         <h2>我发的塔</h2>
@@ -76,15 +79,26 @@ const MainHeader: FC = () => {
               title=""
               dataIndex="operate"
               key="operate"
+              width={200}
               render={(text, record) => (
                 <div className={styles.linkButton}>
-                  <a href={"/towers/" + record.name}>进入游戏</a>
-                  <a href={"/workbench/tower/?tower_name=" + record.name}>
+                  <Text link={{ href: "/towers/" + record.name + "/" }}>
+                    进入游戏
+                  </Text>
+                  <Text
+                    link={{
+                      href: "/workbench/tower/?tower_name=" + record.name,
+                    }}
+                  >
                     成绩
-                  </a>
-                  <a href={"/workbench/info/?tower_name=" + record.name}>
+                  </Text>
+                  <Text
+                    link={{
+                      href: "/workbench/info/?tower_name=" + record.name,
+                    }}
+                  >
                     修改信息
-                  </a>
+                  </Text>
                 </div>
               )}
             />
@@ -126,12 +140,19 @@ const MainHeader: FC = () => {
               title=""
               dataIndex="operate"
               key="operate"
+              width={200}
               render={(text, record) => (
                 <div className={styles.linkButton}>
-                  <a href={"/towers/" + record.name}>进入游戏</a>
-                  <a href={"/workbench/tower/?tower_name=" + record.name}>
+                  <Text link={{ href: "/towers/" + record.name + "/" }}>
+                    进入游戏
+                  </Text>
+                  <Text
+                    link={{
+                      href: "/workbench/tower/?tower_name=" + record.name,
+                    }}
+                  >
                     成绩
-                  </a>
+                  </Text>
                 </div>
               )}
             />

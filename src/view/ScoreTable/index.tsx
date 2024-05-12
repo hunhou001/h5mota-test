@@ -26,7 +26,7 @@ const ScoreTable: FC = () => {
     },
     {
       title: "提交者",
-      dataIndex: "name",
+      dataIndex: "userid",
     },
     {
       title: "提交时间",
