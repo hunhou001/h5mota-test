@@ -32,6 +32,7 @@ export default defineConfig({
           name: "index",
           filename: "index.html",
           entry: "/workbench/main.tsx",
+          template: "workbench/index.html",
         },
       ],
     }),

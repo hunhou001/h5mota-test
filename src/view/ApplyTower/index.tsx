@@ -84,7 +84,9 @@ const ApplyTower: FC = () => {
         }
       );
       if (data.code === 0) {
-        location.href = `/info/?tower_name=${value.name}`;
+        setTimeout(() => {
+          location.href = `/workbench/info/?tower_name=${value.name}`;
+        }, 2000);
         setProgress(0);
       } else if (data.code === -4) {
         Modal.error({
