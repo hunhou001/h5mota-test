@@ -1,8 +1,8 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import App from "./view/App.tsx";
-import "./index.css";
+import App from "./App";
 import { QueryClient, QueryClientProvider } from "react-query";
+import { userInfoModel } from "@/utils/store";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -15,13 +15,9 @@ const queryClient = new QueryClient({
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-      <App />
+      <userInfoModel.Provider>
+        <App />
+      </userInfoModel.Provider>
     </QueryClientProvider>
   </React.StrictMode>
 );
-
-// ReactDOM.createRoot(document.getElementById("root")!).render(
-//   <React.StrictMode>
-//     <App />
-//   </React.StrictMode>
-// );

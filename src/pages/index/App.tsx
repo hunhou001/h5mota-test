@@ -12,7 +12,7 @@ import { userInfoModel } from "@/utils/store";
 const { Column } = Table;
 const { Text } = Typography;
 
-const MainHeader: FC = () => {
+const App: FC = () => {
   const getMyTower = useQuery("requestMyTower", async () => {
     const data = await requestMyTower({});
     if (data.code === 0) {
@@ -202,4 +202,4 @@ const MainHeader: FC = () => {
   );
 };
 
-export default MainHeader;
+export default App;

@@ -10,9 +10,9 @@ import {
   IllustrationNoResult,
   IllustrationNoResultDark,
 } from "@douyinfe/semi-illustrations";
-import MainHeader from "../MainHeader";
+import MainHeader from "../../components/MainHeader";
 
-const ScoreTable: FC = () => {
+const App: FC = () => {
   const columns = [
     {
       title: "编号",
@@ -112,4 +112,4 @@ const ScoreTable: FC = () => {
   );
 };
 
-export default ScoreTable;
+export default App;

@@ -27,9 +27,9 @@ import {
 import Section from "@douyinfe/semi-ui/lib/es/form/section";
 import { IconPlus } from "@douyinfe/semi-icons";
 import { customRequestArgs } from "@douyinfe/semi-ui/lib/es/upload";
-import MainHeader from "../MainHeader";
+import MainHeader from "../../components/MainHeader";
 
-const EditConfig: FC = () => {
+const App: FC = () => {
   // const initValue = {
   //   name: "",
   //   title: "",
@@ -233,4 +233,4 @@ const EditConfig: FC = () => {
   );
 };
 
-export default EditConfig;
+export default App;

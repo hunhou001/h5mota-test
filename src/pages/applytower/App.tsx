@@ -15,9 +15,9 @@ import styles from "./index.module.less";
 import { IconPlus } from "@douyinfe/semi-icons";
 import { requestApplyTower } from "@/services/tower";
 import { useLoading } from "@/utils/use";
-import MainHeader from "../MainHeader";
+import MainHeader from "../../components/MainHeader";
 
-const ApplyTower: FC = () => {
+const App: FC = () => {
   const initValue = {
     name: "",
     title: "",
@@ -163,4 +163,4 @@ const ApplyTower: FC = () => {
   );
 };
 
-export default ApplyTower;
+export default App;

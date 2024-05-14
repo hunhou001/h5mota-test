@@ -1,8 +1,8 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import App from "../../src/view/ScoreTable";
+import App from "./App";
 import { QueryClient, QueryClientProvider } from "react-query";
-import { userInfoModel } from "../../src/utils/store";
+import { userInfoModel } from "@/utils/store";
 
 const queryClient = new QueryClient({
   defaultOptions: {

@@ -13,26 +13,34 @@ export default defineConfig({
         {
           name: "applytower",
           filename: "applytower/index.html",
-          entry: "/workbench/applytower/main.tsx",
-          template: "workbench/applytower/index.html",
+          entry: "/src/pages/applytower/main.tsx",
+          data: {
+            title: "H5测试区 - 发塔",
+          }
         },
         {
           name: "info",
           filename: "info/index.html",
-          entry: "/workbench/info/main.tsx",
-          template: "workbench/info/index.html",
+          entry: "/src/pages/info/main.tsx",
+          data: {
+            title: "H5测试区 - 修改信息",
+          }
         },
         {
           name: "tower",
           filename: "tower/index.html",
-          entry: "/workbench/tower/main.tsx",
-          template: "workbench/tower/index.html",
+          entry: "/src/pages/tower/main.tsx",
+          data: {
+            title: "H5测试区 - 详情",
+          }
         },
         {
           name: "index",
           filename: "index.html",
-          entry: "/workbench/main.tsx",
-          template: "workbench/index.html",
+          entry: "/src/pages/index/main.tsx",
+          data: {
+            title: "H5测试区 - 主页",
+          }
         },
       ],
     }),
