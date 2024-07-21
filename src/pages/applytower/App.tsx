@@ -118,7 +118,7 @@ const App: FC = () => {
                 ></Form.Input>
                 <Form.TagInput
                   field="tester"
-                  label="测试员列表（填数字uid，最多十人）"
+                  label="测试员列表（填数字uid，最多十人，以回车分割不同测试员）"
                   validate={validateTesters}
                 ></Form.TagInput>
                 <Form.Upload
@@ -126,7 +126,6 @@ const App: FC = () => {
                   field="file"
                   uploadTrigger="custom"
                   limit={1}
-                  maxSize={1024 * 200}
                   accept=".zip"
                   label="压缩包(zip格式)"
                 >
