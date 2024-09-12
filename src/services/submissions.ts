@@ -19,6 +19,7 @@ export type ScoreType = {
   route: number;
   score: number;
   submit_time: string;
+  verify: number;
 };
 
 interface submissionsRquest {

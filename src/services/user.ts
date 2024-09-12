@@ -21,6 +21,7 @@ export interface towerInfo {
   name: string;
   title: string;
   tester: string;
+  disabled: number;
 }
 interface myTowerResponse extends BaseResponse {
   data: towerInfo[];
