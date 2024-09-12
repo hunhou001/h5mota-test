@@ -2,13 +2,15 @@ import { FC, useMemo } from "react";
 import { useQuery } from "react-query";
 import { requestMyTestTower, requestMyTower, towerInfo } from "@/services/user";
 import styles from "./index.module.less";
-import { Button, Empty, Table, Typography } from "@douyinfe/semi-ui";
+import { Button, Empty, Table, Typography, Modal } from "@douyinfe/semi-ui";
+import { IconLock } from "@douyinfe/semi-icons";
 import {
   IllustrationNoResult,
   IllustrationNoResultDark,
 } from "@douyinfe/semi-illustrations";
 import { formatTime } from "@/utils/formatTime";
 import { userInfoModel } from "@/utils/store";
+import { requestEditTower } from "@/services/tower";
 const { Column } = Table;
 const { Text } = Typography;
 
@@ -43,7 +45,11 @@ const App: FC = () => {
     }
   });
 
-  const myTowers = getMyTower.data as towerInfo[];
+  let myTowers = getMyTower.data as towerInfo[];
+  if (myTowers) {
+    // 锁定塔放在后面
+    myTowers = myTowers.sort((a, b) => a.disabled - b.disabled)
+  }
   const myTests = getMyTest.data as towerInfo[];
   const user = userInfoModel();
   // const user = null;
@@ -67,6 +73,10 @@ const App: FC = () => {
             <h2>我发的塔</h2>
             {myTowers && (
               <Table dataSource={myTowers} pagination={false}>
+                <Column title={() => <Text style={{display:"flex", justifyContent:"center"}}>锁定</Text>} dataIndex="disabled" key="lock" width={100} render={(text) => {
+                  if (text != 0) return <IconLock style={{color:"var(--semi-color-link)", display: "flex", justifyContent: "center"}}/>
+                }}>
+                </Column>
                 <Column title="name" dataIndex="name" key="name" width={100} />
                 <Column
                   title="标题"
@@ -113,6 +123,16 @@ const App: FC = () => {
                         }}
                       >
                         修改信息
+                      </Text>
+                      <Text
+                        link={{}}
+                        onClick={() => {
+                          Modal.confirm({ title: '确认框', content: '确认要锁定这个塔吗？\n锁定后的塔不会再出现在测试员的【我测的塔】列表中。', onOk: async () => {
+                            requestEditTower({name: record.name, disabled: 1});
+                          }})
+                        }}
+                      >
+                        锁定
                       </Text>
                     </div>
                   )}

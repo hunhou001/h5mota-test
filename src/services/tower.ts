@@ -26,16 +26,18 @@ export const requestApplyTower = wrapPost<
   applytowerResponse | CreateTowerErrorResponse
 >("/api/tower/create");
 
-interface edittowerRequest {
+interface editTowerRequest {
   name: string;
-  title: string;
-  tester: string[];
+  title?: string;
+  tester?: string[];
+  disabled?: number;
+  are_you_ready?: number;
   // file: any;
 }
 
-interface edittowerResponse extends BaseResponse {}
+interface editTowerResponse extends BaseResponse {}
 
-export const requestEditTower = wrapPost<edittowerRequest, edittowerResponse>(
+export const requestEditTower = wrapPost<editTowerRequest, editTowerResponse>(
   "/api/tower/updateConfig"
 );
 
