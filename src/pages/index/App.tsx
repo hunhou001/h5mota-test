@@ -129,7 +129,7 @@ const App: FC = () => {
                         onClick={() => {
                           const lock = record.disabled ? "锁定" : "解锁"
                           Modal.confirm({ title: '确认框', content: `确认要${lock}这个塔吗？\n锁定后的塔不会再出现在测试员的【我测的塔】列表中。`, onOk: async () => {
-                            requestEditTower({name: record.name, disabled: 1});
+                            requestEditTower({name: record.name, disabled: (record.disabled ? 0 : 1)});
                           }})
                         }}
                       >
