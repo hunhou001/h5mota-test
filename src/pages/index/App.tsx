@@ -133,7 +133,7 @@ const App: FC = () => {
                           }})
                         }}
                       >
-                        {record.disabled ? "锁定" : "解锁"}
+                        { record.disabled ? "锁定" : "解锁" }
                       </Text>
                     </div>
                   )}
