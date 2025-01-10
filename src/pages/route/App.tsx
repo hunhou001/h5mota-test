@@ -1,4 +1,4 @@
-import { TextArea, Layout, Button, Modal } from "@douyinfe/semi-ui";
+import { Button, Modal } from "@douyinfe/semi-ui";
 import { FC } from "react";
 import styles from "./index.module.less";
 import { requestGetRouteLog, requestRecheckRoute } from "@/services/route";
@@ -8,7 +8,6 @@ import { useQuery } from "react-query";
 
 const App: FC = () => {
 
-  const { Header, Sider, Content} = Layout
   const id = useSearchParam("id");
 
   const modifyLog = useQuery("requestGetRouteLog", async() => {
@@ -36,21 +35,12 @@ const App: FC = () => {
 
   return (
     <>
-     <MainHeader />
-      <Layout>
-        <Header>
-          { modifyLog.data?.code == 0 && <Button theme='borderless' className={styles.VerticalBtn} onClick={replayRoute}> 再次重跑 </Button> }
-        </Header>
-        <Sider>
-        </Sider>
-        <Content>
-          <TextArea
-            style={{ left: "50px" }}
-            autosize
-            value={modifyLog.data ? modifyLog.data.data : "连接出错"}
-          />
-        </Content>
-      </Layout>
+        <MainHeader />
+        { modifyLog.data?.code == 0 && <Button className={styles.VerticalBtn} onClick={replayRoute}> 再次重跑 </Button> }
+        <textarea
+          className={styles.RouteLog}
+          value={modifyLog.data ? modifyLog.data.data : "连接出错"}
+        />
     </>
   );
 };
