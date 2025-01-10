@@ -34,7 +34,3 @@ export const requestMyTower = wrapGet<myTowerRequest, myTowerResponse>(
 export const requestMyTestTower = wrapGet<myTowerRequest, myTowerResponse>(
   "/api/queryMyTest"
 );
-
-export const requestNotification = wrapGet<myTowerRequest, myTowerResponse>(
-  "/api/queryMyTest"
-);
