@@ -3,7 +3,7 @@ import { BaseResponse, wrapGet, wrapPost } from "./utils";
 interface getUserInfoRequest {}
 
 interface getUserInfoResponse extends BaseResponse {
-  data: Object;
+  data: object;
 }
 
 export const requestGetUserInfo = wrapGet<
@@ -32,5 +32,9 @@ export const requestMyTower = wrapGet<myTowerRequest, myTowerResponse>(
 );
 
 export const requestMyTestTower = wrapGet<myTowerRequest, myTowerResponse>(
+  "/api/queryMyTest"
+);
+
+export const requestNotification = wrapGet<myTowerRequest, myTowerResponse>(
   "/api/queryMyTest"
 );
