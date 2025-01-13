@@ -11,6 +11,14 @@ export default defineConfig({
     createMpaPlugin({
       pages: [
         {
+          name: "route",
+          filename: "route/index.html",
+          entry: "/src/pages/route/main.tsx",
+          data: {
+            title: "H5测试区 - 录像检测日志",
+          }
+        },        
+        {
           name: "applytower",
           filename: "applytower/index.html",
           entry: "/src/pages/applytower/main.tsx",

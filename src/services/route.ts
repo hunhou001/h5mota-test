@@ -1,26 +1,31 @@
+import axios from "axios";
 import { wrapGet, BaseResponse } from "./utils";
 
-export type RouteMessageType = {
-  code: number;
-  msg?: string;
-  reason?: string;
-};
-
-interface recheckRouteRquest {
+interface recheckRouteRequest {
   name: string;
-  id: number;
+  id: string;
+  time?: number;
 }
 
-interface recheckAllRouteRquest {
+interface recheckAllRouteRequest {
   name: string;
 }
 
-interface recheckAllRouteResponse extends BaseResponse {
-  data: string;
+interface getRouteLogRequest {
+  id: string;
 }
 
 interface recheckRouteResponse extends BaseResponse {
-  data: RouteMessageType;
+  reason?: string;
+}
+
+interface recheckAllRouteResponse extends BaseResponse {
+  
+}
+
+interface getRouteLogResponse extends BaseResponse {
+  name: string;
+  data: string;
 }
 
 interface Routemsgs {
@@ -28,6 +33,7 @@ interface Routemsgs {
 }
 
 export const routemsgs:Routemsgs = {
+  "-3": "录像结局或难度不一致",
   "-2": "录像运行成功，但是结果和上传成绩不一致。",
   "-1": "录像验证成功！",
   "0": "未验证的录像",
@@ -46,11 +52,20 @@ export const routemsgs:Routemsgs = {
 }
 
 export const requestRecheckRoute = wrapGet<
-  recheckRouteRquest,
+  recheckRouteRequest,
   recheckRouteResponse
 >("/api/recheckRoute");
 
 export const requestRecheckAllRoute = wrapGet<
-  recheckAllRouteRquest,
+  recheckAllRouteRequest,
   recheckAllRouteResponse
->("/api/recheckAllRoute");
+>("/api/verifyAllRoute");
+
+export const requestDownloadRoute = (id: string) => {
+  return axios.get("/api/downloadRoute", {params: { id }, responseType: 'blob' });
+}
+
+export const requestGetRouteLog = wrapGet<
+  getRouteLogRequest,
+  getRouteLogResponse
+>("/api/getRouteCheckLog");

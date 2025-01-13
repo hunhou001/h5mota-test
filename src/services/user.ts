@@ -3,7 +3,7 @@ import { BaseResponse, wrapGet, wrapPost } from "./utils";
 interface getUserInfoRequest {}
 
 interface getUserInfoResponse extends BaseResponse {
-  data: Object;
+  data: object;
 }
 
 export const requestGetUserInfo = wrapGet<

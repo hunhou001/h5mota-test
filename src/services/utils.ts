@@ -110,7 +110,7 @@ export const wrapPost = <T extends Record<string, any>, R extends BaseResponse>(
 
 export const createFormData = function (data: Record<string, any>) {
   const formdata = new FormData();
-  for (let key in data) {
+  for (const key in data) {
     formdata.append(key, data[key]);
   }
   return formdata;

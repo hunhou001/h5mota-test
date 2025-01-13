@@ -1,10 +1,10 @@
-import { Collapse, Descriptions, Empty, List, Table, Button, Typography, Tooltip, Modal } from "@douyinfe/semi-ui";
+import { Collapse, Descriptions, Empty, Table, Button, Tooltip, Modal, ButtonGroup } from "@douyinfe/semi-ui";
 import { IconAlertCircle, IconTickCircle, IconClear } from "@douyinfe/semi-icons";
 import { FC, ReactNode, useState } from "react";
 import { useQuery } from "react-query";
 import styles from "./index.module.less";
 import { ScoreType, requestSubmissions } from "@/services/submissions";
-import { requestRecheckAllRoute, requestRecheckRoute, routemsgs as msgs } from "@/services/routeCheck";
+import { requestRecheckAllRoute, requestRecheckRoute, routemsgs as msgs, requestDownloadRoute } from "@/services/route";
 import { formatTime } from "@/utils/formatTime";
 import { groupBy } from "lodash-es";
 import { useSearchParam } from "react-use";
@@ -60,20 +60,35 @@ const App: FC = () => {
     {
       title: "录像",
       render: (text: string, record: ScoreType) => (
-        <Button type='secondary' onClick={() => recheckAction(record.id, record.name)}>重跑</Button>
+        <ButtonGroup type='secondary'>
+          <Button onClick={() => recheckAction(record.id, record.name)}>重跑</Button>
+          <Button onClick={() => downloadRoute(record.id)}>下载</Button>
+        </ButtonGroup>
+        
       ),
     },
   ];
 
   const recheckAction = (id: number, name: string) => {
-    Modal.confirm({ title: '确认框', content: '确认要重跑这个录像吗？', onOk: async () => {
-      await requestRecheckRoute({id:id, name:name});
+    Modal.confirm({ title: '确认框', content: '确认要重跑这个录像吗？(请耐心等待录像跑完)', onOk: async () => {
+      await requestRecheckRoute({ id: id.toString(), name: name });
       //setVisible(false);
       Modal.confirm({ title: '确认框', content: '是否要查看录像检测日志？', onOk: async () => {
-        window.location.href = `https://test.mota.press/api/checkMyRoute?id=${id}&name=${name}&time=${100}`;
+        window.location.href = `/workbench/route?id=${id}`;
       }})
     }});
   }
+
+  const downloadRoute = async (id: number) => Modal.confirm({ title: '确认框', content: '确认要下载该录像吗？', onOk: async () => {
+    const res = await requestDownloadRoute(id.toString());
+    const link = document.createElement('a');
+    const disposition = res.headers['content-disposition'];
+    const filename = disposition.substring(disposition.lastIndexOf("filename=") + 9);
+    console.log(disposition, filename)
+    link.href = URL.createObjectURL(res.data);
+    link.download = filename;
+    link.click();
+  }});
 
   // const [ScoreData, setScoreData] = useState<ScoreType[]>([]);
 
