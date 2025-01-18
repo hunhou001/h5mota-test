@@ -13,8 +13,6 @@ const App: FC = () => {
     "平面塔", "连载塔", "已完结", "机关塔", "小游戏", "解密塔", "随机塔", "多角色", "联机游戏",
   ]
 
-  const COLORS = ['白', '紫', '红', '橙', '蓝', '绿']
-
   const name = useSearchParam("name");
   const title = useSearchParam("title");
   const isMOD = useRef(false);
@@ -121,6 +119,10 @@ const App: FC = () => {
                   trigger='blur' rules={rules.mod_of}
                 />
               }
+              <Form.Input field='saveId' label='同步存档编号'></Form.Input>
+              <Form.Slot label="存档说明"> 
+                <div style={{ display: 'flex', alignItems: 'center', height: '100%' }}> 请提交最难打出的成绩存档以保证塔内不存在无解的情况 </div>
+              </Form.Slot>
               <Form.Input
                 disabled={true}
                 field='link'

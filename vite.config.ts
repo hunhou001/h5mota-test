@@ -15,7 +15,7 @@ export default defineConfig({
           filename: "release/index.html",
           entry: "/src/pages/release/main.tsx",
           data: {
-            title: "H5测试区 - 发塔",
+            title: "H5测试区 - 发布",
           }
         },         
         {
