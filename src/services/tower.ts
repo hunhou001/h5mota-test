@@ -9,12 +9,11 @@ interface applytowerRequest {
 
 interface applytowerResponse extends BaseResponse {
   code: 0;
-  data: Object;
 }
 
 interface CreateTowerErrorResponse extends BaseResponse {
-  code: -4;
-  data: {
+  code: Exclude<number, 0>;
+  data?: {
     bgm_remote: boolean;
     code: number;
     message: string;
@@ -71,3 +70,27 @@ export const requestTowerFileUpdate = wrapPost<
   towerFileUpdateRequest,
   towerFileUpdateResponse | CreateTowerErrorResponse
 >("/api/tower/update");
+
+export interface releaseTowerRequest {
+  name: string;
+  ismod?: string;
+  mod_of?: string;
+  title: string;
+  authorId: string;
+  author: string;
+  remastered?: boolean;
+  author2?: string;
+  competition?: string;
+  text?: string;
+  tag?: string;
+}
+
+interface releaseTowerResponse extends BaseResponse {
+
+}
+
+export const requestReleaseTower = wrapPost<
+  releaseTowerRequest,
+  releaseTowerResponse
+>("/api/tower/postTowerForm");
+

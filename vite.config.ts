@@ -11,6 +11,14 @@ export default defineConfig({
     createMpaPlugin({
       pages: [
         {
+          name: "release",
+          filename: "release/index.html",
+          entry: "/src/pages/release/main.tsx",
+          data: {
+            title: "H5测试区 - 发塔",
+          }
+        },         
+        {
           name: "route",
           filename: "route/index.html",
           entry: "/src/pages/route/main.tsx",

@@ -143,7 +143,7 @@ const App: FC = () => {
       Modal.error({
         title: "发布失败",
         width: "85%",
-        content: <pre className={styles.message}>{data.data.message}</pre>,
+        content: <pre className={styles.message}>{data.data?.message}</pre>,
       });
     } else onError({});
   };
@@ -183,6 +183,14 @@ const App: FC = () => {
               </>
             )}
           </Form>
+          <Section
+            className={styles.towerInfo}
+            style={{ marginTop: 20 }}
+            text={"正式发布"}
+          >
+            <Button onClick={() => location.href = `/release?name=${towername}&title=${initValue.title}`}>发塔</Button>
+          </Section>
+          
           <Section
             className={styles.towerInfo}
             style={{ marginTop: 20 }}
