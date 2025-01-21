@@ -92,7 +92,7 @@ const App: FC = () => {
         Modal.error({
           title: "发布失败",
           width: "85%",
-          content: <pre className={styles.message}>{data.data.message}</pre>,
+          content: <pre className={styles.message}>{data.data?.message}</pre>,
         });
       }
     }
