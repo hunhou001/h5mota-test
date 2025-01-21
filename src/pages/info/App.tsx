@@ -188,7 +188,7 @@ const App: FC = () => {
             style={{ marginTop: 20 }}
             text={"正式发布"}
           >
-            <Button onClick={() => location.href = `/release?name=${towername}&title=${initValue.title}`}>发塔</Button>
+            <Button onClick={() => location.href = `/workbench/release?name=${towername}&title=${initValue.title}`}>发塔</Button>
           </Section>
           
           <Section
