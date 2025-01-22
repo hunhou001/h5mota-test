@@ -156,10 +156,7 @@ const App: FC = () => {
       onOk: async () => {
         const res = await requestDeleteTower({ name });
         if (res.code === 0) {
-          Toast.success("删除成功");
           location.href = "/workbench";
-        } else {
-          Toast.error("删除失败");
         }
       },
     });
