@@ -14,6 +14,7 @@ import {
 import { FC, useState } from "react";
 import styles from "./index.module.less";
 import {
+  requestDeleteTower,
   requestEditTower,
   requestEditTowerInfo,
   requestTowerFileUpdate,
@@ -148,6 +149,19 @@ const App: FC = () => {
     } else onError({});
   };
 
+  const handleDelete = async (name: string) => {
+    Modal.confirm({
+      title: "确认删除塔？",
+      content: `删除塔 ${name} 将会删除所有数据，且无法恢复。如果不确定可以改为在首页选择锁定`,
+      onOk: async () => {
+        const res = await requestDeleteTower({ name });
+        if (res.code === 0) {
+          location.href = "/workbench";
+        }
+      },
+    });
+  };
+
   return (
     <>
       <MainHeader />
@@ -180,6 +194,7 @@ const App: FC = () => {
                   </Row>
                 </Section>
                 <Button onClick={() => handleSubmit(values)}>修改</Button>
+                <Button onClick={() => handleDelete(values.name)}>删除</Button>
               </>
             )}
           </Form>
@@ -188,7 +203,7 @@ const App: FC = () => {
             style={{ marginTop: 20 }}
             text={"正式发布"}
           >
-            <Button onClick={() => location.href = `/release?name=${towername}&title=${initValue.title}`}>发塔</Button>
+            <Button onClick={() => location.href = `/workbench/release?name=${towername}&title=${initValue.title}`}>发塔</Button>
           </Section>
           
           <Section

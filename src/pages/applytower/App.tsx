@@ -88,11 +88,11 @@ const App: FC = () => {
           location.href = `/workbench/info/?tower_name=${value.name}`;
         }, 2000);
         setProgress(0);
-      } else if (data.code === -4) {
+      } else {
         Modal.error({
           title: "发布失败",
           width: "85%",
-          content: <pre className={styles.message}>{data.data.message}</pre>,
+          content: <pre className={styles.message}>{data.data?.message}</pre>,
         });
       }
     }
