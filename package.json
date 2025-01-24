@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "postPackage": "node postPackage"
   },
   "dependencies": {
     "@douyinfe/semi-icons": "^2.46.0",
@@ -24,6 +25,8 @@
     "react-query": "^3.39.3",
     "react-use": "^17.4.0",
     "ts-pattern": "^5.0.5",
+    "vite-plugin-multi-pages": "^0.0.14",
+    "vite-plugin-virtual-mpa": "^1.11.0",
     "zustand": "^4.4.6"
   },
   "devDependencies": {
@@ -35,10 +38,12 @@
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
     "@vitejs/plugin-react": "^4.0.3",
+    "compressing": "^1.10.1",
     "eslint": "^8.45.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.3",
     "less": "^4.2.0",
+    "readline-sync": "^1.4.10",
     "typescript": "^5.0.2",
     "typescript-plugin-css-modules": "^5.0.2",
     "vite": "^4.4.5"
