@@ -94,15 +94,15 @@ export const requestReleaseTower = wrapPost<
   releaseTowerResponse
 >("/api/tower/postTowerForm");
 
-interface deleteTowerRequest {
+interface DeleteTowerRequest {
   name: string;
 }
 
-interface deleteTowerResponse extends BaseResponse {
+interface DeleteTowerResponse extends BaseResponse {
 
 }
 
 export const requestDeleteTower = wrapPost<
-  deleteTowerRequest,
-  deleteTowerResponse
+  DeleteTowerRequest,
+  DeleteTowerResponse
 >("/api/tower/delete");
