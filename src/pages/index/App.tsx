@@ -47,10 +47,12 @@ const App: FC = () => {
   });
 
   const exitTest = async (name: string) => {
-    const data = await requestTesterExit({name});
-    if (data.code === 0) {
-      getMyTest.refetch();
-    }
+    Modal.confirm({ title: '确认框', content: '确认要退出这个塔的测试吗？', onOk: async () => {
+      const data = await requestTesterExit({name});
+      if (data.code === 0) {
+        getMyTest.refetch();
+      }
+    }});
   }
 
   let myTowers = getMyTower.data as towerInfo[];
