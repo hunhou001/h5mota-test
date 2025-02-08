@@ -187,14 +187,15 @@ const App: FC = () => {
                     ></Form.Input>
                     <Form.TagInput
                       field="tester"
-                      label="测试员列表（填数字uid，最多十人，以回车分割不同测试员）"
+                      label="测试员列表（填数字uid，最多十人，每输入一人后请按回车暂存）"
                       validate={validateTesters}
                       initValue={initValue.tester}
                     ></Form.TagInput>
                   </Row>
                 </Section>
                 <Button onClick={() => handleSubmit(values)}>修改</Button>
-                <Button onClick={() => handleDelete(values.name)}>删除</Button>
+                &nbsp;&nbsp;&nbsp;
+                <Button onClick={() => handleDelete(values.name)}>删塔</Button>
               </>
             )}
           </Form>
