@@ -106,3 +106,30 @@ export const requestDeleteTower = wrapPost<
   DeleteTowerRequest,
   DeleteTowerResponse
 >("/api/tower/delete");
+
+interface DeleteScoreRequest {
+  name: string;
+  id: number;
+}
+
+interface DeleteScoreResponse extends BaseResponse {
+  
+}
+
+interface DeleteAllRedScoreRequest {
+  name: string;
+}
+
+interface DeleteAllRedScoreResponse extends BaseResponse {
+  
+}
+
+export const requestDeleteScore = wrapPost<
+  DeleteScoreRequest,
+  DeleteScoreResponse
+>("/api/tower/DeleteScore");
+
+export const requestDeleteAllRedScore = wrapPost<
+  DeleteAllRedScoreRequest,
+  DeleteAllRedScoreResponse
+>("/api/tower/DeleteAllRedScore");

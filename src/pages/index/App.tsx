@@ -1,6 +1,6 @@
 import { FC } from "react";
 import { useQuery } from "react-query";
-import { requestMyTestTower, requestMyTower, towerInfo } from "@/services/user";
+import { requestMyTestTower, requestMyTower, requestTesterExit, towerInfo } from "@/services/user";
 import styles from "./index.module.less";
 import { Button, Empty, Table, Typography, Modal } from "@douyinfe/semi-ui";
 import { IconLock, IconArrowRight } from "@douyinfe/semi-icons";
@@ -45,6 +45,15 @@ const App: FC = () => {
       });
     }
   });
+
+  const exitTest = async (name: string) => {
+    Modal.confirm({ title: '确认框', content: '确认要退出这个塔的测试吗？', onOk: async () => {
+      const data = await requestTesterExit({name});
+      if (data.code === 0) {
+        getMyTest.refetch();
+      }
+    }});
+  }
 
   let myTowers = getMyTower.data as towerInfo[];
   if (myTowers) {
@@ -157,6 +166,29 @@ const App: FC = () => {
             <h2>我测的塔</h2>
             {myTests && (
               <Table dataSource={myTests} pagination={false}>
+                <Column
+                  title={() => <IconArrowRight/>}
+                  dataIndex="operate"
+                  key="operate"
+                  width={200}
+                  render={(text, record) => (
+                    <div className={styles.linkButton}>
+                      <Text link={{}} onClick={() => exitTest(record.name)}>
+                        退出测试
+                      </Text>
+                      <Text link={{ href: "/towers/" + record.name + "/" }}>
+                        进入游戏
+                      </Text>
+                      <Text
+                        link={{
+                          href: "/workbench/tower/?tower_name=" + record.name,
+                        }}
+                      >
+                        成绩
+                      </Text>
+                    </div>
+                  )}
+                />
                 <Column title="name" dataIndex="name" key="name" width={100} />
                 <Column
                   title="标题"
@@ -179,26 +211,6 @@ const App: FC = () => {
                     if (text) return <div>已发布</div>;
                     else return <div>测试中</div>;
                   }}
-                />
-                <Column
-                  title=""
-                  dataIndex="operate"
-                  key="operate"
-                  width={200}
-                  render={(text, record) => (
-                    <div className={styles.linkButton}>
-                      <Text link={{ href: "/towers/" + record.name + "/" }}>
-                        进入游戏
-                      </Text>
-                      <Text
-                        link={{
-                          href: "/workbench/tower/?tower_name=" + record.name,
-                        }}
-                      >
-                        成绩
-                      </Text>
-                    </div>
-                  )}
                 />
               </Table>
             )}

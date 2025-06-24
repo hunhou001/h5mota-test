@@ -34,3 +34,15 @@ export const requestMyTower = wrapGet<myTowerRequest, myTowerResponse>(
 export const requestMyTestTower = wrapGet<myTowerRequest, myTowerResponse>(
   "/api/queryMyTest"
 );
+
+interface TesterExitRequest {
+  name: string;
+}
+
+interface TesterExitResponse extends BaseResponse {
+  
+}
+
+export const requestTesterExit = wrapPost<TesterExitRequest, TesterExitResponse>(
+  "/api/testerExit"
+);

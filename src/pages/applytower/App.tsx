@@ -89,10 +89,11 @@ const App: FC = () => {
         }, 2000);
         setProgress(0);
       } else {
+        const errorMsg = 'data' in data ? data.data?.message : "发布出错";
         Modal.error({
           title: "发布失败",
           width: "85%",
-          content: <pre className={styles.message}>{data.data?.message}</pre>,
+          content: <pre className={styles.message}>{ errorMsg }</pre>,
         });
       }
     }

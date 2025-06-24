@@ -13,6 +13,7 @@ import {
   IllustrationNoResultDark,
 } from "@douyinfe/semi-illustrations";
 import MainHeader from "../../components/MainHeader";
+import { requestDeleteAllRedScore, requestDeleteScore } from "@/services/tower";
 
 const App: FC = () => {
   const columns = [   
@@ -63,6 +64,7 @@ const App: FC = () => {
         <ButtonGroup type='secondary'>
           <Button onClick={() => recheckAction(record.id, record.name)}>重跑</Button>
           <Button onClick={() => downloadRoute(record.id)}>下载</Button>
+          <Button onClick={() => deleteScore(record.id)}>删除</Button>
         </ButtonGroup>
         
       ),
@@ -136,12 +138,35 @@ const App: FC = () => {
     }});
   }
 
+  const deleteScore = async (id: number) => {
+    Modal.confirm({ title: '确认框', content: '确认要删除该成绩吗？', onOk: async () => {
+      if (towername) {
+        await requestDeleteScore({name: towername, id: id});
+        getScoreData.refetch();
+      }
+    }});
+  }
+
+  const deleteAllRedScore = async () => {
+    Modal.confirm({ title: '确认框', content: '确认要删除该成绩吗？', onOk: async () => {
+      if (towername) {
+        await requestDeleteAllRedScore({name: towername});
+        window.location.reload()
+      }
+    }});
+  }
+
   return (
     <>
       <MainHeader />
       <div className={styles.mainCard}>
         <h2>测试员成绩</h2>
-        {towername && <Button type="primary" onClick={recheckAllRoute}> 重跑全部录像 </Button>}
+        { towername &&
+          <div>
+            <Button type="primary" onClick={recheckAllRoute}> 重跑全部录像 </Button>
+            <Button type="primary" onClick={deleteAllRedScore}> 删除全部红色成绩 </Button>
+          </div>
+        }
         {ScoreData &&
           ScoreData.map(([hard, oneHard]) => (
             <div className={styles.Table}>
