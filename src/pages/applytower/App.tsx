@@ -38,7 +38,7 @@ const App: FC = () => {
 
   const validateTesters = (testers: string[]) => {
     const t: string[] = [];
-    if (testers.length > 10) return "输入测试员数量过多";
+    if (testers.length > 20) return "输入测试员数量过多";
     for (const tester of testers) {
       if (t.includes(tester)) return "不得重复输入测试id";
       t.push(tester);
@@ -119,7 +119,7 @@ const App: FC = () => {
                 ></Form.Input>
                 <Form.TagInput
                   field="tester"
-                  label="测试员列表（填数字uid，最多十人，以回车分割不同测试员）"
+                  label="测试员列表（填数字uid，最多二十人，以回车分割不同测试员）"
                   validate={validateTesters}
                 ></Form.TagInput>
                 <Form.Upload
