@@ -16,23 +16,23 @@ export default defineConfig({
           entry: "/src/pages/release/main.tsx",
           data: {
             title: "H5测试区 - 发布",
-          }
-        },         
+          },
+        },
         {
           name: "route",
           filename: "route/index.html",
           entry: "/src/pages/route/main.tsx",
           data: {
             title: "H5测试区 - 录像检测日志",
-          }
-        },        
+          },
+        },
         {
           name: "applytower",
           filename: "applytower/index.html",
           entry: "/src/pages/applytower/main.tsx",
           data: {
             title: "H5测试区 - 发塔",
-          }
+          },
         },
         {
           name: "info",
@@ -40,7 +40,7 @@ export default defineConfig({
           entry: "/src/pages/info/main.tsx",
           data: {
             title: "H5测试区 - 修改信息",
-          }
+          },
         },
         {
           name: "tower",
@@ -48,7 +48,7 @@ export default defineConfig({
           entry: "/src/pages/tower/main.tsx",
           data: {
             title: "H5测试区 - 详情",
-          }
+          },
         },
         {
           name: "index",
@@ -56,7 +56,7 @@ export default defineConfig({
           entry: "/src/pages/index/main.tsx",
           data: {
             title: "H5测试区 - 主页",
-          }
+          },
         },
       ],
     }),
@@ -80,7 +80,7 @@ export default defineConfig({
   },
 
   build: {
-    outDir: "client",
+    outDir: "dist",
     // rollupOptions: {
     //   input: {
     //     main: path.resolve(__dirname, "index.html"),
