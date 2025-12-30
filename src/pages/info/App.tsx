@@ -140,7 +140,7 @@ const App: FC = () => {
     if (data.code === 0) {
       onSuccess(data.message);
       setProgress(0);
-    } else if (data.code === -4) {
+    } else if ("data" in data) {
       Modal.error({
         title: "发布失败",
         width: "85%",
