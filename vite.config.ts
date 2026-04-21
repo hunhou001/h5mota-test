@@ -58,6 +58,14 @@ export default defineConfig({
             title: "H5测试区 - 主页",
           },
         },
+        {
+          name: "admin",
+          filename: "admin/index.html",
+          entry: "/src/pages/admin/main.tsx",
+          data: {
+            title: "H5测试区 - 管理",
+          },
+        },
       ],
     }),
   ],
