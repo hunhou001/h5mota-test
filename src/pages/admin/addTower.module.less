@@ -1,0 +1,80 @@
+.container {
+  height: 100%;
+  overflow: auto;
+}
+
+.pane {
+  text-align: left;
+  margin-bottom: 16px;
+}
+
+.form-row {
+  padding: 8px 0;
+}
+
+.submit-row {
+  text-align: right;
+}
+
+.addTowerForm {
+  :global(.semi-form-field) {
+    margin-bottom: 8px;
+  }
+}
+
+/** 左侧标签与主内容区顶部对齐（避免与下方说明一起被纵向居中后显得比输入框「高」） */
+.author-uid-slot:global(.semi-form-field[x-label-pos="left"]) {
+  align-items: flex-start;
+}
+
+/** 作者 uid 行：输入与「获取」按钮同一基线垂直居中，并抵消嵌套 Form.Input 外层的底边距 */
+.author-uid-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 8px;
+  row-gap: 8px;
+
+  > :global(.semi-form-field) {
+    margin-bottom: 0;
+  }
+}
+
+.tag-checkbox-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 16px;
+  row-gap: 10px;
+}
+
+.message {
+  height: 300px;
+  overflow: auto;
+  margin: 0;
+}
+
+.pending-list {
+  min-height: 80px;
+}
+
+.pending-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--semi-color-border);
+}
+
+.pending-meta {
+  font-size: 12px;
+  color: var(--semi-color-text-2);
+  margin-top: 4px;
+}
+
+.pending-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}

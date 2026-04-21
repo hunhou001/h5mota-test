@@ -108,6 +108,15 @@ export const wrapPost = <T extends Record<string, any>, R extends BaseResponse>(
   };
 };
 
+/** Nest 等使用 `express.json()` + `@Body()` 的接口需用 JSON；`postForm` 的表单体不会进 `req.body`。 */
+export const wrapPostJson = <T extends Record<string, any>, R extends BaseResponse>(
+  path: string
+) => {
+  return (data: T, { message, ...options }: Partial<RequestOptions> = {}) => {
+    return handle(axios.post<R>(path, data, options), message ?? ShowMessage.Always);
+  };
+};
+
 export const createFormData = function (data: Record<string, any>) {
   const formdata = new FormData();
   for (const key in data) {
