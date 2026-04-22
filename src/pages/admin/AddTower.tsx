@@ -225,7 +225,7 @@ const AddTower: FC = () => {
           const createMsg =
             typeof createRes.message === "string" && createRes.message
               ? createRes.message
-              : "主站创建成功";
+              : "测试区已登记该塔";
           const pushMsg =
             typeof pushRes.message === "string" && pushRes.message
               ? pushRes.message
@@ -235,7 +235,7 @@ const AddTower: FC = () => {
           Toast.success(
             typeof createRes.message === "string" && createRes.message
               ? createRes.message
-              : "主站创建成功"
+              : "测试区已登记该塔"
           );
           Toast.warning(
             typeof pushRes.message === "string" && pushRes.message
@@ -255,7 +255,7 @@ const AddTower: FC = () => {
           nested ||
             (typeof createRes.message === "string" && createRes.message
               ? createRes.message
-              : "主站 /api/tower/create 失败")
+              : "测试区登记塔信息失败")
         );
       }
     } catch (e) {
