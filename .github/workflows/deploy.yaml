@@ -43,7 +43,7 @@ jobs:
           rsync -avz --delete \
             -e "ssh -i ~/.ssh/deploy_key -p ${{ secrets.SSH_PORT }}" \
             dist/ \
-            ${{ secrets.SSH_USERNAME }}@${{ secrets. SSH_HOST }}:${{ secrets.DEPLOY_PATH }}/
+            ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}/
 
       - name: Cleanup
         if: always()
