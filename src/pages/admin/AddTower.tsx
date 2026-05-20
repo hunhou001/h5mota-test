@@ -4,6 +4,8 @@ import {
   Checkbox,
   Form,
   Modal,
+  Radio,
+  RadioGroup,
   Table,
   TextArea,
   Toast,
@@ -16,6 +18,7 @@ import {
   fetchStageTmpTowerZipToH5mota,
   fetchTowerCreateFromH5mota,
   fetchTowersByAuthorId,
+  fetchUploadTmpTowerZipToH5mota,
 } from "@/services/admin";
 import type { towerInfo } from "@/services/user";
 import { formatTime } from "@/utils/formatTime";
@@ -86,6 +89,19 @@ const validateAuthorId = (id: string) => {
   return "";
 };
 
+/** 发布流程内 Toast 停留时间（毫秒），默认约 2s 偏短 */
+const SUBMIT_TOAST_MS = 10_000;
+
+function toastSubmit(
+  level: "success" | "error" | "warning",
+  content: string
+) {
+  const opts = { content, duration: SUBMIT_TOAST_MS };
+  if (level === "success") Toast.success(opts);
+  else if (level === "warning") Toast.warning(opts);
+  else Toast.error(opts);
+}
+
 /** 与勾选区一致：复刻塔开启时把「复刻塔」拼回 tag */
 function buildPublishPayload(
   values: TowerFormValues,
@@ -116,6 +132,9 @@ const { Column } = Table;
 const AddTower: FC = () => {
   const formApi = useRef<FormApi<TowerFormValues> | null>(null);
   const [addJson, setAddJson] = useState("");
+  const [towerZipSource, setTowerZipSource] = useState<"upload" | "author">("author");
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [uploadedZip, setUploadedZip] = useState<File | null>(null);
   const [tagChecks, setTagChecks] = useState<string[]>([]);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pickerRows, setPickerRows] = useState<towerInfo[]>([]);
@@ -193,6 +212,7 @@ const AddTower: FC = () => {
     try {
       await api.validate();
     } catch {
+      toastSubmit("error", "必填项未填写，或未通过校验，请修正表单后重试。");
       return;
     }
     const values = api.getValues();
@@ -201,14 +221,35 @@ const AddTower: FC = () => {
     const towerFormJson = JSON.stringify(publishPayload);
     setPublishLoading(true);
     try {
-      const res = await fetchStageTmpTowerZipToH5mota(name);
-      if (res.code !== 0) {
-        Toast.error(
-          typeof res.message === "string" && res.message
-            ? res.message
-            : "复制失败"
-        );
-        return;
+      if (towerZipSource === "upload") {
+        if (!uploadedZip) {
+          toastSubmit("error", "请先选择要上传的塔文件（zip）");
+          return;
+        }
+        const uploadRes = await fetchUploadTmpTowerZipToH5mota({
+          name,
+          file: uploadedZip,
+        });
+        if (uploadRes.code !== 0) {
+          toastSubmit(
+            "error",
+            typeof uploadRes.message === "string" && uploadRes.message
+              ? uploadRes.message
+              : "上传失败"
+          );
+          return;
+        }
+      } else {
+        const res = await fetchStageTmpTowerZipToH5mota(name);
+        if (res.code !== 0) {
+          toastSubmit(
+            "error",
+            typeof res.message === "string" && res.message
+              ? res.message
+              : "复制失败"
+          );
+          return;
+        }
       }
 
       const createRes = await fetchTowerCreateFromH5mota({
@@ -230,14 +271,16 @@ const AddTower: FC = () => {
             typeof pushRes.message === "string" && pushRes.message
               ? pushRes.message
               : "塔包已同步至主站";
-          Toast.success(`${createMsg}；${pushMsg}`);
+          toastSubmit("success", `${createMsg}${pushMsg}`);
         } else {
-          Toast.success(
+          toastSubmit(
+            "success",
             typeof createRes.message === "string" && createRes.message
               ? createRes.message
               : "测试区已登记该塔"
           );
-          Toast.warning(
+          toastSubmit(
+            "warning",
             typeof pushRes.message === "string" && pushRes.message
               ? `同步包至主站失败：${pushRes.message}`
               : "同步包至主站失败，请稍后重试或联系管理员"
@@ -251,7 +294,8 @@ const AddTower: FC = () => {
           typeof (createRes.data as { message?: string }).message === "string"
             ? (createRes.data as { message: string }).message
             : "";
-        Toast.error(
+        toastSubmit(
+          "error",
           nested ||
             (typeof createRes.message === "string" && createRes.message
               ? createRes.message
@@ -260,7 +304,7 @@ const AddTower: FC = () => {
       }
     } catch (e) {
       console.log("publish tower", e);
-      Toast.error("请求失败，请检查网络或接口是否已部署");
+      toastSubmit("error", "请求失败，请检查网络或接口是否已部署");
     } finally {
       setPublishLoading(false);
     }
@@ -311,40 +355,82 @@ const AddTower: FC = () => {
         className={styles.addTowerForm}
         labelPosition="left"
         labelWidth={150}
+        autoScrollToError
       >
         {({ values, formApi }) => (
           <>
-            <Form.Slot label="作者用户编号" className={styles.authorUidSlot}>
-              <div className={styles.authorUidRow}>
-                <Form.Input
-                  field="authorId"
-                  noLabel
-                  placeholder="作者用户编号（数字 uid）"
-                  style={{ width: 220 }}
-                  rules={[
-                    {
-                      validator: (_rule, val) => {
-                        const msg = validateAuthorId(String(val ?? ""));
-                        return msg ? new Error(msg) : true;
-                      },
-                    },
-                  ]}
-                />
-                <Button
-                  type="primary"
-                  loading={lookupLoading}
-                  onClick={() => void fetchTowersForPicker()}
-                >
-                  获取他发的塔列表
-                </Button>
-              </div>
-              <Typography.Paragraph
-                size="small"
-                type="tertiary"
-                style={{ marginTop: 8, marginBottom: 0 }}
+            <Form.Slot label="塔文件来源" className={styles.towerSourceSlot}>
+              <RadioGroup
+                direction="vertical"
+                value={towerZipSource}
+                onChange={(e) =>
+                  setTowerZipSource((e.target.value as "upload" | "author") ?? "author")
+                }
               >
-                在弹出列表中选中一座塔，将自动填入英文名、中文名、作者用户编号与链接。
-              </Typography.Paragraph>
+                <Radio value="upload">由我上传塔文件</Radio>
+                <Radio value="author">选择作者在测试区已上传的塔文件</Radio>
+              </RadioGroup>
+              {towerZipSource === "upload" && (
+                <div style={{ marginTop: 10 }}>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".zip"
+                    style={{ display: "none" }}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] ?? null;
+                      setUploadedZip(file);
+                    }}
+                  />
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <Button
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={publishLoading}
+                    >
+                      上传文件
+                    </Button>
+                    <Typography.Text type={uploadedZip ? "primary" : "tertiary"}>
+                      {uploadedZip ? uploadedZip.name : "未选择文件"}
+                    </Typography.Text>
+                  </div>
+                </div>
+              )}
+            </Form.Slot>
+            <Form.Slot label="作者用户编号" className={styles.authorUidSlot}>
+              <div>
+                <div className={styles.authorUidRow}>
+                  <Form.Input
+                    field="authorId"
+                    noLabel
+                    placeholder="作者用户编号（数字 uid）"
+                    style={{ width: 220 }}
+                    rules={[
+                      {
+                        validator: (_rule, val) => {
+                          const msg = validateAuthorId(String(val ?? ""));
+                          return msg ? new Error(msg) : true;
+                        },
+                      },
+                    ]}
+                  />
+                  {towerZipSource === "author" && (
+                    <Button
+                      type="primary"
+                      loading={lookupLoading}
+                      onClick={() => void fetchTowersForPicker()}
+                    >
+                      获取测试区已发塔列表
+                    </Button>
+                  )}
+                </div>
+                {towerZipSource === "author" && (
+                  <div className={styles.authorUidHint}>
+                    <Typography.Text size="small" type="tertiary">
+                      你可以根据作者用户编号，从该作者在测试区已发的塔列表中选择一个，自动填入信息。
+                    </Typography.Text>
+                  </div>
+                )}
+              </div>
             </Form.Slot>
             <Form.Input
               field="name"

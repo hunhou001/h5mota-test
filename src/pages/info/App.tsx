@@ -14,6 +14,7 @@ import {
 import { FC, useState } from "react";
 import styles from "./index.module.less";
 import {
+  extractTowerPublishFailMessage,
   requestDeleteTower,
   requestEditTower,
   requestEditTowerInfo,
@@ -140,13 +141,18 @@ const App: FC = () => {
     if (data.code === 0) {
       onSuccess(data.message);
       setProgress(0);
-    } else if ("data" in data) {
+    } else {
       Modal.error({
         title: "发布失败",
         width: "85%",
-        content: <pre className={styles.message}>{data.data?.message}</pre>,
+        content: (
+          <pre className={styles.message}>
+            {extractTowerPublishFailMessage(data)}
+          </pre>
+        ),
       });
-    } else onError({});
+      onError({});
+    }
   };
 
   const handleDelete = async (name: string) => {

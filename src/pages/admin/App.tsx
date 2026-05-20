@@ -1,9 +1,10 @@
 import { Button, Layout, Nav, Spin, Typography } from "@douyinfe/semi-ui";
-import { IconUpload } from "@douyinfe/semi-icons";
-import { FC, useMemo, useState } from "react";
+import { IconTickCircle, IconUpload } from "@douyinfe/semi-icons";
+import { FC, ReactNode, useEffect, useMemo, useState } from "react";
 import { useQuery } from "react-query";
 import MainHeader from "../../components/MainHeader";
 import AddTower from "./AddTower";
+import AuditUpdate from "./AuditUpdate";
 import AdminDenied from "./AdminDenied";
 import { requestGetUserInfo } from "@/services/user";
 import { ShowMessage } from "@/services/utils";
@@ -11,11 +12,12 @@ import { fetchAddTowerApiPrecheck } from "@/services/admin";
 import {
   canEnterAddTower,
   canEnterAdmin,
+  canEnterAuditUpdate,
   isPrivilegerEmpty,
 } from "@/utils/adminGate";
 import styles from "./index.module.less";
 
-type AdminSubKey = "addTower";
+type AdminSubKey = "addTower" | "auditUpdate";
 
 interface UserInfo {
   username: string;
@@ -42,6 +44,19 @@ const App: FC = () => {
   const privileger = user?.privileger;
   const adminOk = user != null && canEnterAdmin(privileger);
   const addTowerOk = adminOk && canEnterAddTower(privileger);
+  const auditUpdateOk = adminOk && canEnterAuditUpdate(privileger);
+
+  const navKeys = useMemo((): AdminSubKey[] => {
+    const keys: AdminSubKey[] = [];
+    if (addTowerOk) keys.push("addTower");
+    if (auditUpdateOk) keys.push("auditUpdate");
+    return keys;
+  }, [addTowerOk, auditUpdateOk]);
+
+  useEffect(() => {
+    if (navKeys.length === 0) return;
+    if (!navKeys.includes(selected)) setSelected(navKeys[0]);
+  }, [navKeys, selected]);
 
   const addTowerPrecheckQuery = useQuery(
     ["adminAddTowerApiPrecheck", user?.id],
@@ -54,8 +69,34 @@ const App: FC = () => {
 
   const title = useMemo(() => {
     if (selected === "addTower") return "发塔";
+    if (selected === "auditUpdate") return "自助更新审核";
     return "管理";
   }, [selected]);
+
+  const navItems = useMemo(
+    () =>
+      [
+        addTowerOk
+          ? {
+              itemKey: "addTower" as const,
+              text: "发塔",
+              icon: <IconUpload />,
+            }
+          : null,
+        auditUpdateOk
+          ? {
+              itemKey: "auditUpdate" as const,
+              text: "自助更新审核",
+              icon: <IconTickCircle />,
+            }
+          : null,
+      ].filter(Boolean) as {
+        itemKey: AdminSubKey;
+        text: string;
+        icon: React.ReactElement;
+      }[],
+    [addTowerOk, auditUpdateOk]
+  );
 
   if (userQuery.isLoading) {
     return (
@@ -100,7 +141,7 @@ const App: FC = () => {
     );
   }
 
-  const renderAddTowerBody = () => {
+  const renderWithAddTowerManagementGate = (body: ReactNode) => {
     if (!addTowerOk) {
       return (
         <AdminDenied
@@ -141,7 +182,19 @@ const App: FC = () => {
       );
     }
 
-    return <AddTower />;
+    return body;
+  };
+
+  const renderAuditUpdateBody = () => {
+    if (!auditUpdateOk) {
+      return (
+        <AdminDenied
+          title="无自助更新审核权限"
+          description="需要 tower 权限 ≥ 1。"
+        />
+      );
+    }
+    return <AuditUpdate />;
   };
 
   return (
@@ -157,13 +210,7 @@ const App: FC = () => {
                 const key = selectedKeys[0] as AdminSubKey | undefined;
                 if (key) setSelected(key);
               }}
-              items={[
-                {
-                  itemKey: "addTower",
-                  text: "发塔",
-                  icon: <IconUpload />,
-                },
-              ]}
+              items={navItems}
             />
           </Layout.Sider>
           <Layout.Content className={styles.mainBranch}>
@@ -173,7 +220,9 @@ const App: FC = () => {
               </Typography.Title>
             </div>
             <div className={styles.mainContent}>
-              {selected === "addTower" && renderAddTowerBody()}
+              {selected === "addTower" &&
+                renderWithAddTowerManagementGate(<AddTower />)}
+              {selected === "auditUpdate" && renderAuditUpdateBody()}
             </div>
           </Layout.Content>
         </Layout>

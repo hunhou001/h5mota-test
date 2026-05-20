@@ -89,11 +89,25 @@ const App: FC = () => {
         }, 2000);
         setProgress(0);
       } else {
-        const errorMsg = 'data' in data ? data.data?.message : "发布出错";
+        console.log(data);
+        const errorMsg = (() => {
+          if (!('data' in data)) {
+            return "发布出错";
+          }
+          const currData = data.data;
+          if (currData == null) {
+            return data.message || "发布出错";
+          }
+          if (typeof currData === "string") {
+            return currData;
+          }
+          return currData?.message;
+        })();
+
         Modal.error({
           title: "发布失败",
           width: "85%",
-          content: <pre className={styles.message}>{ errorMsg }</pre>,
+          content: <pre className={styles.message}>{errorMsg}</pre>,
         });
       }
     }

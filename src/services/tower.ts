@@ -13,11 +13,44 @@ interface applytowerResponse extends BaseResponse {
 
 interface CreateTowerErrorResponse extends BaseResponse {
   code: Exclude<number, 0>;
-  data?: {
-    bgm_remote: boolean;
-    code: number;
-    message: string;
+  data?:
+    | {
+        bgm_remote?: boolean;
+        code?: number;
+        message?: string;
+        detail?: string;
+        unzipData?: { message?: string; detail?: string };
+      }
+    | string;
+}
+
+/** 发塔 / 更新文件失败时解析后端错误详情（含 buildTower:unzip 的 unzipData） */
+export function extractTowerPublishFailMessage(res: {
+  message?: string;
+  data?: unknown;
+}): string {
+  const fallback = res.message || "发布出错";
+  if (!("data" in res) || res.data == null) return fallback;
+  const curr = res.data;
+  if (typeof curr === "string") return curr || fallback;
+  if (typeof curr !== "object") return fallback;
+  const obj = curr as {
+    message?: string;
+    detail?: string;
+    unzipData?: { message?: string; detail?: string };
   };
+  const unzip = obj.unzipData;
+  if (unzip) {
+    if (typeof unzip.message === "string" && unzip.message.length > 0) {
+      return unzip.message;
+    }
+    if (typeof unzip.detail === "string" && unzip.detail.length > 0) {
+      return unzip.detail;
+    }
+  }
+  if (typeof obj.message === "string" && obj.message.length > 0) return obj.message;
+  if (typeof obj.detail === "string" && obj.detail.length > 0) return obj.detail;
+  return fallback;
 }
 
 export const requestApplyTower = wrapPost<
