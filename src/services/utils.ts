@@ -23,6 +23,23 @@ interface ErrorResponse {
   message: string;
 }
 
+/** 管理端解压/确认上线等长耗时请求（axios + 建议与 Nginx proxy_read_timeout 对齐） */
+export const ADMIN_LONG_REQUEST_MS = 900_000;
+
+/** 从 wrapPost 等 catch 里塞进的 AxiosError 或原始错误上取 HTTP 状态码 */
+export function getAxiosErrorHttpStatus(err: unknown): number | undefined {
+  if (err && typeof err === "object") {
+    if ("status" in err && typeof (err as { status: unknown }).status === "number") {
+      return (err as { status: number }).status;
+    }
+    if ("response" in err) {
+      const status = (err as { response?: { status?: unknown } }).response?.status;
+      if (typeof status === "number") return status;
+    }
+  }
+  return undefined;
+}
+
 export enum ShowMessage {
   None,
   ErrorOnly,

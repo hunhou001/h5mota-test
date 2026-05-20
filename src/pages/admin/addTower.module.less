@@ -22,9 +22,19 @@
   }
 }
 
+/** 与「作者用户编号」等 Slot 一致：左侧标签与多行控件顶部对齐 */
+.tower-source-slot:global(.semi-form-field[x-label-pos="left"]) {
+  align-items: flex-start;
+}
+
 /** 左侧标签与主内容区顶部对齐（避免与下方说明一起被纵向居中后显得比输入框「高」） */
 .author-uid-slot:global(.semi-form-field[x-label-pos="left"]) {
   align-items: flex-start;
+}
+
+/** 作者 uid 下方说明：紧贴输入行，避免块级段落默认外边距 */
+.author-uid-hint {
+  margin-top: 4px;
 }
 
 /** 作者 uid 行：输入与「获取」按钮同一基线垂直居中，并抵消嵌套 Form.Input 外层的底边距 */

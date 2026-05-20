@@ -369,9 +369,9 @@ export const userInfoModel = createModel(() => {
     const data = await requestGetUserInfo({});
 
     if (data.code === -1) {
-      location.href = `https://test.mota.press/login?${new URLSearchParams({
-        from: location.pathname + location.search,
-      })}`;
+      // location.href = `https://test.mota.press/login?${new URLSearchParams({
+      //   from: location.pathname + location.search,
+      // })}`;
       return null;
     } else if (data.code === 0) {
       return data.data as userInfoType;

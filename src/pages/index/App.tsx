@@ -76,6 +76,9 @@ const App: FC = () => {
           <Button onClick={() => (location.href = "/login")}>
             {user ? "切号" : "登录"}
           </Button>
+          <Button onClick={() => (location.href = "/workbench/up2cos")}>
+            自助更新-主站
+          </Button>
         </div>
       </div>
       {user && (

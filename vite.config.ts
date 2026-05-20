@@ -43,6 +43,14 @@ export default defineConfig({
           },
         },
         {
+          name: "up2cos",
+          filename: "up2cos/index.html",
+          entry: "/src/pages/up2cos/main.tsx",
+          data: {
+            title: "H5测试区 - 自助更新",
+          },
+        },
+        {
           name: "tower",
           filename: "tower/index.html",
           entry: "/src/pages/tower/main.tsx",
@@ -82,8 +90,14 @@ export default defineConfig({
   },
 
   server: {
+    // 本地 dev：避免 confirm 等长请求在 Vite→test.mota.press 代理层先 504（需重启 dev）
     proxy: {
-      "/api": "https://test.mota.press",
+      "/api": {
+        target: "https://test.mota.press",
+        changeOrigin: true,
+        timeout: 600_000,
+        proxyTimeout: 600_000,
+      },
     },
   },
 

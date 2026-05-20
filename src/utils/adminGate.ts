@@ -27,3 +27,8 @@ export function canEnterAdmin(privileger: unknown): boolean {
 export function canEnterAddTower(privileger: unknown): boolean {
   return getTowerPrivilege(privileger) >= 2;
 }
+
+/** 管理端：自助更新审核需 tower >= 1 */
+export function canEnterAuditUpdate(privileger: unknown): boolean {
+  return getTowerPrivilege(privileger) >= 1;
+}
