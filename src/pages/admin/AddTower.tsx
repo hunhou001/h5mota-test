@@ -88,6 +88,10 @@ const validateAuthorId = (id: string) => {
   if (!/^\d+$/.test(id)) return "作者用户编号应为数字";
   return "";
 };
+const buildTowerLink = (name: string) => {
+  const trimmed = String(name ?? "").trim();
+  return trimmed ? `/games/${trimmed}/` : "";
+};
 
 /** 发布流程内 Toast 停留时间（毫秒），默认约 2s 偏短 */
 const SUBMIT_TOAST_MS = 10_000;
@@ -155,6 +159,7 @@ const AddTower: FC = () => {
       if (typeof obj.tag === "string" && obj.tag) {
         setTagChecks(obj.tag.split("|").filter((t) => TAG_OPTIONS.includes(t)));
       }
+      api.setValue("link", buildTowerLink(String(api.getValue("name") ?? "")));
       Toast.success("已根据 JSON 填充（可继续手改）");
     } catch (e) {
       console.log("发塔预填 JSON 解析失败", e);
@@ -202,7 +207,7 @@ const AddTower: FC = () => {
     api.setValue("name", row.name);
     api.setValue("title", row.title);
     api.setValue("authorId", resolvedAuthorUid);
-    api.setValue("link", `/games/${row.name}/`);
+    api.setValue("link", buildTowerLink(row.name));
     setPickerOpen(false);
     Toast.success("已填入英文名、中文名、作者用户编号");
   };
@@ -445,7 +450,7 @@ const AddTower: FC = () => {
                 },
               ]}
               onChange={(v) => {
-                formApi.setValue("link", v ? `/games/${v}/` : "");
+                formApi.setValue("link", buildTowerLink(v));
               }}
             />
             <Form.Input
