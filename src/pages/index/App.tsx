@@ -15,6 +15,8 @@ import MainHeader from "../../components/MainHeader";
 const { Column } = Table;
 const { Text } = Typography;
 
+const towerZipHref = (name: string) => `/towers/${name}/${name}.zip`;
+
 const App: FC = () => {
   const getMyTower = useQuery("requestMyTower", async () => {
     const data = await requestMyTower({});
@@ -95,6 +97,14 @@ const App: FC = () => {
                     <div className={styles.linkButton}>
                       <Text link={{ href: "/towers/" + record.name + "/" }}>
                         进入游戏
+                      </Text>
+                      <Text
+                        link={{
+                          href: towerZipHref(record.name),
+                          target: "_blank",
+                        }}
+                      >
+                        下载
                       </Text>
                       <Text
                         link={{
@@ -181,6 +191,14 @@ const App: FC = () => {
                       </Text>
                       <Text link={{ href: "/towers/" + record.name + "/" }}>
                         进入游戏
+                      </Text>
+                      <Text
+                        link={{
+                          href: towerZipHref(record.name),
+                          target: "_blank",
+                        }}
+                      >
+                        下载
                       </Text>
                       <Text
                         link={{
