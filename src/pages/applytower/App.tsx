@@ -1,5 +1,6 @@
 import {
   Badge,
+  Banner,
   Button,
   Col,
   Form,
@@ -8,12 +9,13 @@ import {
   Progress,
   Row,
   Toast,
+  Typography,
 } from "@douyinfe/semi-ui";
 import Section from "@douyinfe/semi-ui/lib/es/form/section";
 import { FC, useState } from "react";
 import styles from "./index.module.less";
 import { IconPlus } from "@douyinfe/semi-icons";
-import { requestApplyTower } from "@/services/tower";
+import { extractTowerPublishFailMessage, requestApplyTower } from "@/services/tower";
 import { useLoading } from "@/utils/use";
 import MainHeader from "../../components/MainHeader";
 
@@ -89,25 +91,14 @@ const App: FC = () => {
         }, 2000);
         setProgress(0);
       } else {
-        console.log(data);
-        const errorMsg = (() => {
-          if (!('data' in data)) {
-            return "发布出错";
-          }
-          const currData = data.data;
-          if (currData == null) {
-            return data.message || "发布出错";
-          }
-          if (typeof currData === "string") {
-            return currData;
-          }
-          return currData?.message;
-        })();
-
         Modal.error({
           title: "发布失败",
           width: "85%",
-          content: <pre className={styles.message}>{errorMsg}</pre>,
+          content: (
+            <pre className={styles.message}>
+              {extractTowerPublishFailMessage(data)}
+            </pre>
+          ),
         });
       }
     }
@@ -119,6 +110,27 @@ const App: FC = () => {
       <Form initValues={initValue} className={styles.applyTower}>
         {({ formState, values, formApi }) => (
           <>
+            <Banner
+              fullMode={false}
+              type="warning"
+              bordered
+              className={styles.chunkHint}
+              description={
+                <span>
+                  塔文件含有单个较大素材时，请作者安装分块加载插件。前往
+                  <Typography.Text
+                    link={{
+                      href: "https://h5mota.com/plugin/",
+                      target: "_blank",
+                      rel: "noopener noreferrer",
+                    }}
+                  >
+                    插件库
+                  </Typography.Text>
+                  搜索「分块加载」查看详情。
+                </span>
+              }
+            />
             <Section text={"发塔信息"}>
               <Row>
                 <Form.Input

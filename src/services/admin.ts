@@ -119,6 +119,10 @@ export type TowerPublishFormPayload = {
   text: string;
   /** 竖线拼接，已含按需前置的「复刻塔」 */
   tag: string;
+  /** 发塔员（当前操作人）uid；由测试区 pushBuiltTowerToMain 后端注入，前端表单不传 */
+  operatorId?: string;
+  /** 是否来自测试区管理发塔，默认由后端注入为 true */
+  from_test?: boolean;
 };
 
 /** 管理发塔：复制到主站临时目录后，以 from=h5mota 调用 /api/tower/create（可不传 file，由服务端使用已复制的 zip） */
@@ -147,7 +151,7 @@ export async function fetchTowerCreateFromH5mota(payload: {
   }
 }
 
-/** create 成功后：将 `TOWERS_PATH_H5MOTA/${name}` 打成 zip 并同步至主站 receiveBuiltTower（测试区服务端执行） */
+/** create 成功后：将 `TOWERS_PATH_H5MOTA/${name}` 打成 zip 并同步至主站 receiveBuiltTower（测试区服务端执行；JWT 含 operatorId，towerFormJSON 含 operatorId） */
 export interface PushBuiltTowerToMainResponse extends BaseResponse {
   data?: { upstream?: unknown; upstreamRaw?: unknown };
 }
