@@ -13,63 +13,27 @@ import {
   IllustrationNoResultDark,
 } from "@douyinfe/semi-illustrations";
 import MainHeader from "../../components/MainHeader";
-import { requestDeleteAllRedScore, requestDeleteScore } from "@/services/tower";
+import { requestDeleteAllRedScore, requestDeleteScore, requestEditTowerInfo } from "@/services/tower";
+import { ShowMessage } from "@/services/utils";
+import { userInfoModel } from "@/utils/store";
 
 const App: FC = () => {
-  const columns = [   
-    {
-      title: "",
-      width: 1
-    },
-    {
-      title: "录像状态",
-      dataIndex: "verify",
-      width: 100,
-      render: (text: string) => {
-        let Tag = <IconClear style={{ color: "red", display: "flex", justifyContent: "center"}}/>;
-        if (text == "-1") {
-          Tag = <IconTickCircle style={{ color: "green", display: "flex", justifyContent: "center"}}/>;
-        }
-        if (text == "0" || text == "8") {
-          Tag = <IconAlertCircle style={{ color: "#1890ff", display: "flex", justifyContent: "center"}}/>;
-        }
-        return (
-          <Tooltip content={`${text}:${msgs[text]}`}>
-            {Tag}
-          </Tooltip>
-        );
-      },
-    },
-    {
-      title: "编号",
-      width: 100,
-      dataIndex: "id",
-    }, 
-    {
-      title: "分数",
-      width: 200,
-      dataIndex: "score",
-    },
-    {
-      title: "提交者",
-      dataIndex: "userid",
-    },
-    {
-      title: "提交时间",
-      dataIndex: "submit_time",
-    },
-    {
-      title: "录像",
-      render: (text: string, record: ScoreType) => (
-        <ButtonGroup type='secondary'>
-          <Button onClick={() => recheckAction(record.id, record.name)}>重跑</Button>
-          <Button onClick={() => downloadRoute(record.id)}>下载</Button>
-          <Button onClick={() => deleteScore(record.id)}>删除</Button>
-        </ButtonGroup>
-        
-      ),
-    },
-  ];
+  const towername = useSearchParam("tower_name");
+  const user = userInfoModel();
+
+  // /api/tower/info 仅作者、共同作者、站点管理员可调；用来判断能否重跑/删成绩/下他人录像
+  const canManageQuery = useQuery(
+    ["towerScoreManagePermission", towername],
+    async () => {
+      if (!towername) return false;
+      const data = await requestEditTowerInfo(
+        { tower_name: towername },
+        { message: ShowMessage.None }
+      );
+      return data.code === 0;
+    }
+  );
+  const canManageScores = canManageQuery.data === true;
 
   const recheckAction = (id: number, name: string) => {
     Modal.confirm({ title: '确认框', content: '确认要重跑这个录像吗？(请耐心等待录像跑完)', onOk: async () => {
@@ -126,7 +90,6 @@ const App: FC = () => {
     return [];
   });
 
-  const towername = useSearchParam("tower_name");
   const ScoreData = getScoreData.data as [string, [string, ScoreType[]][]][];
 
   const recheckAllRoute = async () => {
@@ -156,12 +119,80 @@ const App: FC = () => {
     }});
   }
 
+  const columns = [
+    {
+      title: "",
+      width: 1
+    },
+    {
+      title: "录像状态",
+      dataIndex: "verify",
+      width: 100,
+      render: (text: string) => {
+        let Tag = <IconClear style={{ color: "red", display: "flex", justifyContent: "center"}}/>;
+        if (text == "-1") {
+          Tag = <IconTickCircle style={{ color: "green", display: "flex", justifyContent: "center"}}/>;
+        }
+        if (text == "0" || text == "8") {
+          Tag = <IconAlertCircle style={{ color: "#1890ff", display: "flex", justifyContent: "center"}}/>;
+        }
+        return (
+          <Tooltip content={`${text}:${msgs[text]}`}>
+            {Tag}
+          </Tooltip>
+        );
+      },
+    },
+    {
+      title: "编号",
+      width: 100,
+      dataIndex: "id",
+    },
+    {
+      title: "分数",
+      width: 200,
+      dataIndex: "score",
+    },
+    {
+      title: "提交者",
+      dataIndex: "userid",
+    },
+    {
+      title: "提交时间",
+      dataIndex: "submit_time",
+    },
+    {
+      title: "录像",
+      render: (_text: string, record: ScoreType) => {
+        const isOwn =
+          user != null && String(record.userid) === String(user.id);
+        const showRecheck = canManageScores;
+        const showDownload = canManageScores || isOwn;
+        const showDelete = canManageScores;
+        if (!showRecheck && !showDownload && !showDelete) return null;
+        return (
+          <ButtonGroup type="secondary">
+            {showRecheck && (
+              <Button onClick={() => recheckAction(record.id, record.name)}>重跑</Button>
+            )}
+            {showDownload && (
+              <Button onClick={() => downloadRoute(record.id)}>下载</Button>
+            )}
+            {showDelete && (
+              <Button onClick={() => deleteScore(record.id)}>删除</Button>
+            )}
+          </ButtonGroup>
+        );
+      },
+    },
+  ];
+
   return (
     <>
       <MainHeader />
       <div className={styles.mainCard}>
         <h2>测试员成绩</h2>
-        { towername &&
+        { towername && canManageScores &&
           <div>
             <Button type="primary" onClick={recheckAllRoute}> 重跑全部录像 </Button>
             <Button type="primary" onClick={deleteAllRedScore}> 删除全部红色成绩 </Button>
@@ -169,12 +200,12 @@ const App: FC = () => {
         }
         {ScoreData &&
           ScoreData.map(([hard, oneHard]) => (
-            <div className={styles.Table}>
+            <div className={styles.Table} key={hard}>
               <h3>{hard}</h3>
               <Collapse>
                 {oneHard &&
-                  oneHard.map(([ending, scoredata], index) => (
-                    <Collapse.Panel itemKey={index.toString()} header={ending}>
+                  oneHard.map(([ending, scoredata]) => (
+                    <Collapse.Panel key={ending} itemKey={String(ending)} header={ending}>
                       <Table
                         rowKey={"id"}
                         dataSource={scoredata}
