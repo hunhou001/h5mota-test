@@ -21,6 +21,7 @@ export interface towerInfo {
   name: string;
   title: string;
   tester: string;
+  coauthor?: string;
   disabled: number;
 }
 interface myTowerResponse extends BaseResponse {
@@ -35,6 +36,10 @@ export const requestMyTestTower = wrapGet<myTowerRequest, myTowerResponse>(
   "/api/queryMyTest"
 );
 
+export const requestMyCoauthorTower = wrapGet<myTowerRequest, myTowerResponse>(
+  "/api/queryMyCoauthor"
+);
+
 interface TesterExitRequest {
   name: string;
 }
@@ -46,3 +51,14 @@ interface TesterExitResponse extends BaseResponse {
 export const requestTesterExit = wrapPost<TesterExitRequest, TesterExitResponse>(
   "/api/testerExit"
 );
+
+interface CoauthorExitRequest {
+  name: string;
+}
+
+interface CoauthorExitResponse extends BaseResponse {}
+
+export const requestCoauthorExit = wrapPost<
+  CoauthorExitRequest,
+  CoauthorExitResponse
+>("/api/coauthorExit");

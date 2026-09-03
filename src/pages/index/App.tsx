@@ -1,6 +1,13 @@
 import { FC } from "react";
 import { useQuery } from "react-query";
-import { requestMyTestTower, requestMyTower, requestTesterExit, towerInfo } from "@/services/user";
+import {
+  requestMyCoauthorTower,
+  requestMyTestTower,
+  requestMyTower,
+  requestTesterExit,
+  requestCoauthorExit,
+  towerInfo,
+} from "@/services/user";
 import styles from "./index.module.less";
 import { Button, Empty, Table, Typography, Modal } from "@douyinfe/semi-ui";
 import { IconLock, IconArrowRight } from "@douyinfe/semi-icons";
@@ -11,41 +18,41 @@ import {
 import { formatTime } from "@/utils/formatTime";
 import { userInfoModel } from "@/utils/store";
 import { requestEditTower } from "@/services/tower";
+import { ShowMessage } from "@/services/utils";
 import MainHeader from "../../components/MainHeader";
+import CoauthorHelpHint from "../../components/CoauthorHelpHint";
 const { Column } = Table;
 const { Text } = Typography;
 
 const towerZipHref = (name: string) => `/towers/${name}/${name}.zip`;
 
+const mapTowerRows = (data: { code: number; data?: towerInfo[] }) => {
+  if (data.code !== 0 || !data.data) return;
+  let index = 0;
+  return data.data.map((ele) => {
+    return {
+      ...ele,
+      update_time: ele.update_time / 1000,
+      create_time: ele.create_time / 1000,
+      key: (index++).toString(),
+    };
+  });
+};
+
 const App: FC = () => {
   const getMyTower = useQuery("requestMyTower", async () => {
     const data = await requestMyTower({});
-    if (data.code === 0) {
-      let index = 0;
-      return data.data.map((ele) => {
-        return {
-          ...ele,
-          update_time: ele.update_time / 1000,
-          create_time: ele.create_time / 1000,
-          key: (index++).toString(),
-        };
-      });
-    }
+    return mapTowerRows(data);
+  });
+
+  const getMyCoauthor = useQuery("requestMyCoauthor", async () => {
+    const data = await requestMyCoauthorTower({}, { message: ShowMessage.None });
+    return mapTowerRows(data);
   });
 
   const getMyTest = useQuery("requestMyTest", async () => {
     const data = await requestMyTestTower({});
-    if (data.code === 0) {
-      let index = 0;
-      return data.data.map((ele) => {
-        return {
-          ...ele,
-          update_time: ele.update_time / 1000,
-          create_time: ele.create_time / 1000,
-          key: (index++).toString(),
-        };
-      });
-    }
+    return mapTowerRows(data);
   });
 
   const exitTest = async (name: string) => {
@@ -57,11 +64,21 @@ const App: FC = () => {
     }});
   }
 
+  const exitCoauthor = async (name: string) => {
+    Modal.confirm({ title: '确认框', content: '确认要退出这个塔的共同作者吗？', onOk: async () => {
+      const data = await requestCoauthorExit({name});
+      if (data.code === 0) {
+        getMyCoauthor.refetch();
+      }
+    }});
+  }
+
   let myTowers = getMyTower.data as towerInfo[];
   if (myTowers) {
     // 锁定塔放在后面
     myTowers = myTowers.sort((a, b) => a.disabled - b.disabled)
   }
+  const myCoauthors = getMyCoauthor.data as towerInfo[];
   const myTests = getMyTest.data as towerInfo[];
   const user = userInfoModel();
   // const user = null;
@@ -124,8 +141,13 @@ const App: FC = () => {
                         link={{}}
                         onClick={() => {
                           const lock = record.disabled ? "解锁" : "锁定";
-                          Modal.confirm({ title: '确认框', content: `确认要${lock}这个塔吗？\n锁定后的塔不会再出现在测试员的【我测的塔】列表中。`, onOk: async () => {
-                            requestEditTower({name: record.name, disabled: (record.disabled ? 0 : 1)});
+                          Modal.confirm({ title: '确认框', content: `确认要${lock}这个塔吗？\n锁定后的塔不会再出现在测试员的【我测的塔】和共同作者的【我共同创作的塔】列表中。`, onOk: async () => {
+                            const res = await requestEditTower({name: record.name, disabled: (record.disabled ? 0 : 1)});
+                            if (res.code === 0) {
+                              getMyTower.refetch();
+                              getMyCoauthor.refetch();
+                              getMyTest.refetch();
+                            }
                           }})
                         }}
                       >
@@ -172,6 +194,90 @@ const App: FC = () => {
                   />
                 }
                 description={"暂无已发的塔"}
+              ></Empty>
+            )}
+          </div>
+          <div className={styles.mainCard}>
+            <h2 className={styles.sectionTitle}>
+              我参与制作的塔
+              <CoauthorHelpHint variant="home" />
+            </h2>
+            {myCoauthors && (
+              <Table dataSource={myCoauthors} pagination={false}>
+                <Column
+                  title={() => <IconArrowRight/>}
+                  dataIndex="operate"
+                  key="operate"
+                  width={200}
+                  render={(text, record) => (
+                    <div className={styles.linkButton}>
+                      <Text link={{}} onClick={() => exitCoauthor(record.name)}>
+                        退出共同作者
+                      </Text>
+                      <Text link={{ href: "/towers/" + record.name + "/" }}>
+                        进入游戏
+                      </Text>
+                      <Text
+                        link={{
+                          href: towerZipHref(record.name),
+                          target: "_blank",
+                        }}
+                      >
+                        下载
+                      </Text>
+                      <Text
+                        link={{
+                          href: "/workbench/tower/?tower_name=" + record.name,
+                        }}
+                      >
+                        成绩
+                      </Text>
+                      <Text
+                        link={{
+                          href: "/workbench/info/?tower_name=" + record.name,
+                        }}
+                      >
+                        修改信息
+                      </Text>
+                    </div>
+                  )}
+                />
+                <Column title="name" dataIndex="name" key="name" width={100} />
+                <Column
+                  title="标题"
+                  dataIndex="title"
+                  key="title"
+                  width={250}
+                />
+                <Column
+                  title="更新时间"
+                  dataIndex="update_time"
+                  key="update_time"
+                  render={(text) => <div>{formatTime(text)}</div>}
+                  width={150}
+                />
+                <Column
+                  title="发布状况"
+                  dataIndex="are_you_ready"
+                  key="are_you_ready"
+                  render={(text) => {
+                    if (text) return <div>已发布</div>;
+                    else return <div>测试中</div>;
+                  }}
+                />
+              </Table>
+            )}
+            {!myCoauthors && (
+              <Empty
+                image={
+                  <IllustrationNoResult style={{ width: 150, height: 150 }} />
+                }
+                darkModeImage={
+                  <IllustrationNoResultDark
+                    style={{ width: 150, height: 150 }}
+                  />
+                }
+                description={"暂无共同创作的塔"}
               ></Empty>
             )}
           </div>
