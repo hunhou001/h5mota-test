@@ -1,10 +1,7 @@
 import {
-  Badge,
   Button,
-  Col,
   Empty,
   Form,
-  Input,
   Modal,
   Progress,
   Row,
@@ -30,27 +27,53 @@ import Section from "@douyinfe/semi-ui/lib/es/form/section";
 import { IconPlus } from "@douyinfe/semi-icons";
 import { customRequestArgs } from "@douyinfe/semi-ui/lib/es/upload";
 import MainHeader from "../../components/MainHeader";
+import CoauthorHelpHint from "../../components/CoauthorHelpHint";
+import { userInfoModel } from "@/utils/store";
+
+function parseUidList(raw: unknown): string[] {
+  if (raw == null || raw === "") return [];
+  if (Array.isArray(raw)) return raw.map(String);
+  if (typeof raw === "string") {
+    try {
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed.map(String) : [];
+    } catch {
+      return [];
+    }
+  }
+  return [];
+}
+
+type TowerEditForm = {
+  name: string;
+  title: string;
+  tester: string[];
+  coauthor: string[];
+  author: string;
+};
 
 const App: FC = () => {
-  // const initValue = {
-  //   name: "",
-  //   title: "",
-  //   tester: [] as string[],
-  // };
+  const user = userInfoModel();
+  const towername = useSearchParam("tower_name");
+
   const getInitValue = useQuery("requestEditTowerInfo", async () => {
     if (!towername)
       return {
         name: "",
         title: "",
         tester: [] as string[],
+        coauthor: [] as string[],
+        author: "",
       };
 
     const data = await requestEditTowerInfo({ tower_name: towername });
     if (data.code === 0) {
-      const t = JSON.parse(data.data[0].tester);
+      const row = data.data[0];
       return {
-        ...data.data[0],
-        tester: t,
+        ...row,
+        tester: parseUidList(row.tester),
+        coauthor: parseUidList(row.coauthor),
+        author: row.author != null ? String(row.author) : "",
       };
     }
 
@@ -58,15 +81,17 @@ const App: FC = () => {
       name: "",
       title: "",
       tester: [] as string[],
+      coauthor: [] as string[],
+      author: "",
     };
   });
 
-  const initValue = getInitValue.data as {
-    name: string;
-    title: string;
-    tester: string[];
-  };
-  const towername = useSearchParam("tower_name");
+  const initValue = getInitValue.data as TowerEditForm;
+  const isAuthor =
+    user != null &&
+    Boolean(initValue?.author) &&
+    String(initValue.author) === String(user.id);
+
   const strokeArr = [
     { percent: 0, color: "blue" },
     { percent: 100, color: "hsla(125, 50%, 46% / 1)" },
@@ -80,12 +105,25 @@ const App: FC = () => {
   };
 
   const validateTesters = (testers: string[]) => {
+    const list = testers || [];
     const t: string[] = [];
-    if (testers.length > 20) return "输入测试员数量过多";
-    for (const tester of testers) {
+    if (list.length > 20) return "输入测试员数量过多";
+    for (const tester of list) {
       if (t.includes(tester)) return "不得重复输入测试id";
       t.push(tester);
       if (!/^\d{4,5}$/.test(tester)) return "请输入正确uid";
+    }
+    return "";
+  };
+
+  const validateCoauthors = (coauthors: string[]) => {
+    const list = coauthors || [];
+    const t: string[] = [];
+    if (list.length > 5) return "输入共同作者数量过多";
+    for (const uid of list) {
+      if (t.includes(uid)) return "不得重复输入共同作者id";
+      t.push(uid);
+      if (!/^\d{4,5}$/.test(uid)) return "请输入正确uid";
     }
     return "";
   };
@@ -101,18 +139,35 @@ const App: FC = () => {
     return "";
   };
 
-  const handleSubmit = async (value: typeof initValue) => {
+  const handleSubmit = async (value: {
+    name: string;
+    title: string;
+    tester: string[];
+    coauthor?: string[];
+  }) => {
     const validate =
       validateName(value.name) ||
       validateTesters(value.tester) ||
-      validateTitle(value.title);
+      validateTitle(value.title) ||
+      (isAuthor ? validateCoauthors(value.coauthor ?? []) : "");
     if (validate) {
       Toast.error(validate);
       return;
     }
-    const data = await requestEditTower({
-      ...value,
-    });
+    const payload: {
+      name: string;
+      title: string;
+      tester: string[];
+      coauthor?: string[];
+    } = {
+      name: value.name,
+      title: value.title,
+      tester: value.tester ?? [],
+    };
+    if (isAuthor) {
+      payload.coauthor = value.coauthor ?? [];
+    }
+    await requestEditTower(payload);
   };
 
   const handleUploadFile = async ({
@@ -197,21 +252,40 @@ const App: FC = () => {
                       validate={validateTesters}
                       initValue={initValue.tester}
                     ></Form.TagInput>
+                    {isAuthor && (
+                      <Form.TagInput
+                        field="coauthor"
+                        label={
+                          <span>
+                            共同作者列表（填数字uid，最多五人，以回车分割不同共同作者）
+                            <CoauthorHelpHint variant="info" />
+                          </span>
+                        }
+                        validate={validateCoauthors}
+                        initValue={initValue.coauthor}
+                      ></Form.TagInput>
+                    )}
                   </Row>
                 </Section>
                 <Button onClick={() => handleSubmit(values)}>修改</Button>
-                &nbsp;&nbsp;&nbsp;
-                <Button onClick={() => handleDelete(values.name)}>删塔</Button>
+                {isAuthor && (
+                  <>
+                    &nbsp;&nbsp;&nbsp;
+                    <Button onClick={() => handleDelete(values.name)}>删塔</Button>
+                  </>
+                )}
               </>
             )}
           </Form>
-          <Section
-            className={styles.towerInfo}
-            style={{ marginTop: 20 }}
-            text={"正式发布"}
-          >
-            <Button onClick={() => location.href = `/workbench/release?name=${towername}&title=${initValue.title}`}>发塔</Button>
-          </Section>
+          {isAuthor && (
+            <Section
+              className={styles.towerInfo}
+              style={{ marginTop: 20 }}
+              text={"正式发布"}
+            >
+              <Button onClick={() => location.href = `/workbench/release?name=${towername}&title=${initValue.title}`}>发塔</Button>
+            </Section>
+          )}
           
           <Section
             className={styles.towerInfo}

@@ -62,6 +62,7 @@ interface editTowerRequest {
   name: string;
   title?: string;
   tester?: string[];
+  coauthor?: string[];
   disabled?: number;
   are_you_ready?: number;
   // file: any;
@@ -82,6 +83,8 @@ interface towerEditInfoResponse extends BaseResponse {
     name: string;
     title: string;
     tester: string;
+    coauthor?: string;
+    author?: number | string;
   }[];
 }
 
