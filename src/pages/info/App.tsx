@@ -8,7 +8,7 @@ import {
   Toast,
   Upload,
 } from "@douyinfe/semi-ui";
-import { FC, KeyboardEvent, useState } from "react";
+import { FC, useState } from "react";
 import styles from "./index.module.less";
 import {
   extractTowerPublishFailMessage,
@@ -49,7 +49,15 @@ function isTagConfirmKey(e: { key?: string; keyCode?: number; which?: number }) 
   return e.key === "Enter" || e.keyCode === 13 || e.which === 13;
 }
 
-function handleTagInputConfirmKeyDown(e: KeyboardEvent) {
+/** Semi Form.TagInput 把 onKeyDown 标成了 MouseEvent，运行时仍是键盘事件。 */
+function handleTagInputConfirmKeyDown(e: {
+  key?: string;
+  keyCode?: number;
+  which?: number;
+  preventDefault: () => void;
+  stopPropagation: () => void;
+  target: EventTarget | null;
+}) {
   if (!isTagConfirmKey(e)) return;
   e.preventDefault();
   e.stopPropagation();
