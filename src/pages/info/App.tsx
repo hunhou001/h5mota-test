@@ -8,7 +8,7 @@ import {
   Toast,
   Upload,
 } from "@douyinfe/semi-ui";
-import { FC, useState } from "react";
+import { FC, KeyboardEvent, useState } from "react";
 import styles from "./index.module.less";
 import {
   extractTowerPublishFailMessage,
@@ -42,6 +42,21 @@ function parseUidList(raw: unknown): string[] {
     }
   }
   return [];
+}
+
+/** 旧 WebView 上回车往往不是 e.key==='Enter'，且会跳到下一个输入框。 */
+function isTagConfirmKey(e: { key?: string; keyCode?: number; which?: number }) {
+  return e.key === "Enter" || e.keyCode === 13 || e.which === 13;
+}
+
+function handleTagInputConfirmKeyDown(e: KeyboardEvent) {
+  if (!isTagConfirmKey(e)) return;
+  e.preventDefault();
+  e.stopPropagation();
+  const el = e.target;
+  if (!(el instanceof HTMLInputElement) || !el.value) return;
+  el.blur();
+  window.setTimeout(() => el.focus(), 0);
 }
 
 type TowerEditForm = {
@@ -251,6 +266,8 @@ const App: FC = () => {
                       label="测试员列表（填数字uid，最多二十人，以回车分割不同测试员）"
                       validate={validateTesters}
                       initValue={initValue.tester}
+                      addOnBlur
+                      onKeyDown={handleTagInputConfirmKeyDown}
                     ></Form.TagInput>
                     {isAuthor && (
                       <Form.TagInput
@@ -263,6 +280,8 @@ const App: FC = () => {
                         }
                         validate={validateCoauthors}
                         initValue={initValue.coauthor}
+                        addOnBlur
+                        onKeyDown={handleTagInputConfirmKeyDown}
                       ></Form.TagInput>
                     )}
                   </Row>
