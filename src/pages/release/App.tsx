@@ -1,5 +1,7 @@
+import TowerSectionField from '@/components/TowerSectionField';
+import { resolveTowerSection } from '@/utils/towerSection';
 import { Button, Form, Toast, Modal } from "@douyinfe/semi-ui";
-import { FC, useRef } from "react";
+import { FC } from "react";
 import styles from "./index.module.less";
 import { requestReleaseTower, releaseTowerRequest } from "@/services/tower";
 import { useSearchParam } from "react-use";
@@ -15,9 +17,9 @@ const App: FC = () => {
 
   const name = useSearchParam("name");
   const title = useSearchParam("title");
-  const isMOD = useRef(false);
 
   const handleSubmit = (values: releaseTowerRequest) => {
+    values.section = resolveTowerSection(values);
     Modal.info({
       title: "发塔",
       content: "确定现在要发塔吗，请在制作完毕以后再选择发塔。",
@@ -41,11 +43,6 @@ const App: FC = () => {
             else formApi.setValue('link', ``);
           }
 
-          const changeSwitch = (checked: boolean) => {
-            isMOD.current = checked;
-            formApi.validate(['name']);
-          }
-
           const form = formState.values;
           if (!form.link && form.name) formApi.setValue('link', `https://h5mota.com/games/${form.name}`);
 
@@ -54,7 +51,7 @@ const App: FC = () => {
               { required: true, message: '必须填写这一项内容' },
               { validator: (rule, value: string) => /^[a-zA-Z0-9_]+$/.test(value), message: "标识符只能由大小写字母和数字组成"},
               { validator: (rule, value: string) => {
-                return isMOD.current ? value.startsWith(`${form.mod_of ?? ''}_`) : true
+                return form.mod_of ? value.startsWith(`${form.mod_of}_`) : true
               }, message: "mod的标识符必须以原塔的标识符+下划线为前缀，如51的mod需以51_为前缀"},
             ],
             title: [
@@ -109,16 +106,9 @@ const App: FC = () => {
                 trigger='blur' rules={rules.author}
               />
               {form.remastered && <Form.Input field='author2' label='复刻者'></Form.Input>}
-              <Form.Switch field='ismod' label='MOD塔' onChange={changeSwitch}></Form.Switch>
-              {
-                form.ismod && <Form.Input
-                  field='mod_of'
-                  label='原型塔的name'
-                  placeholder='mod原型来源，如51代表50层魔塔的mod'
-                  onChange={ () => formApi.validate(['name']) }
-                  trigger='blur' rules={rules.mod_of}
-                />
-              }
+              <TowerSectionField />
+              <Form.Input field='mod_of' label='原型塔（选填）' placeholder='MOD 原型塔的英文标识符'
+                onChange={() => formApi.validate(['name'])} />
               <Form.Input field='saveId' label='同步存档编号'></Form.Input>
               <Form.Slot label="存档说明"> 
                 <div style={{ display: 'flex', alignItems: 'center', height: '100%' }}> 请提交最难打出的成绩存档以保证塔内不存在无解的情况 </div>

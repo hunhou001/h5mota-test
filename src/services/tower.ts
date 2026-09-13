@@ -1,3 +1,4 @@
+import type { TowerSection } from '@/utils/towerSection';
 import { BaseResponse, wrapGet, wrapPost } from "./utils";
 
 interface applytowerRequest {
@@ -108,6 +109,7 @@ export const requestTowerFileUpdate = wrapPost<
 >("/api/tower/update");
 
 export interface releaseTowerRequest {
+  section: TowerSection;
   name: string;
   ismod?: string;
   mod_of?: string;

@@ -93,7 +93,7 @@ export default defineConfig({
     // 本地 dev：避免 confirm 等长请求在 Vite→test.mota.press 代理层先 504（需重启 dev）
     proxy: {
       "/api": {
-        target: "https://test.mota.press",
+        target: process.env.H5TEST_BACKEND_ORIGIN || "https://test.mota.press",
         changeOrigin: true,
         timeout: 600_000,
         proxyTimeout: 600_000,

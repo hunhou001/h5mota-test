@@ -1,3 +1,5 @@
+import TowerSectionField from '@/components/TowerSectionField';
+import { TowerSection, resolveTowerSection } from '@/utils/towerSection';
 import {
   Banner,
   Button,
@@ -50,6 +52,7 @@ const TAGS = [
 const TAG_OPTIONS = TAGS.filter((t) => t !== "复刻塔");
 
 export type TowerFormValues = {
+  section: TowerSection;
   name: string;
   ismod: boolean;
   mod_of: string;
@@ -65,6 +68,7 @@ export type TowerFormValues = {
   tag?: string;
 };
 const emptyForm = (): TowerFormValues => ({
+  section: TowerSection.Original,
   name: "",
   ismod: false,
   mod_of: "",
@@ -116,12 +120,13 @@ function buildPublishPayload(
     tagParts.unshift("复刻塔");
   }
   return {
+    section: resolveTowerSection(values),
     name: String(values.name ?? "").trim(),
     title: String(values.title ?? "").trim(),
     authorId: String(values.authorId ?? "").trim(),
     author: String(values.author ?? "").trim(),
     author2: String(values.author2 ?? "").trim(),
-    ismod: Boolean(values.ismod),
+    ismod: Boolean(values.mod_of),
     mod_of: String(values.mod_of ?? "").trim(),
     remastered: Boolean(values.remastered),
     competition: Boolean(values.competition),
@@ -150,12 +155,15 @@ const AddTower: FC = () => {
       const obj = JSON.parse(addJson) as Record<string, unknown>;
       const api = formApi.current;
       if (!api) return;
+      const section = resolveTowerSection(obj);
       const base = emptyForm();
+      api.setValues(base);
       for (const key of Object.keys(obj)) {
         if (key in base) {
           api.setValue(key as keyof TowerFormValues, obj[key] as never);
         }
       }
+      api.setValue("section", section);
       if (typeof obj.tag === "string" && obj.tag) {
         setTagChecks(obj.tag.split("|").filter((t) => TAG_OPTIONS.includes(t)));
       }
@@ -466,10 +474,8 @@ const AddTower: FC = () => {
               rules={[{ required: true, message: "必填" }]}
             />
             {values.remastered && <Form.Input field="author2" label="复刻者" />}
-            <Form.Switch field="ismod" label="MOD塔" />
-            {values.ismod && (
-              <Form.Input field="mod_of" label="原型塔的 name" placeholder="原型塔 name" />
-            )}
+            <TowerSectionField />
+            <Form.Input field="mod_of" label="原型塔（选填）" placeholder="MOD 原型塔的英文标识符" />
             <Form.Input field="link" label="链接" disabled />
             <Form.Switch field="competition" label="不显示提交记录" />
             <Form.Switch field="link_only" label="仅链接游玩" />

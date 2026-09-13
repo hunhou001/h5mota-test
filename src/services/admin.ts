@@ -1,3 +1,4 @@
+import type { TowerSection } from '@/utils/towerSection';
 import axios, {
   ADMIN_LONG_REQUEST_MS,
   BaseResponse,
@@ -105,6 +106,7 @@ export async function fetchUploadTmpTowerZipToH5mota(payload: {
 
 /** 管理发塔页提交的完整塔信息（与主站 add 类字段对齐，供测试区落库与主站 receive 使用） */
 export type TowerPublishFormPayload = {
+  section: TowerSection;
   name: string;
   title: string;
   authorId: string;
