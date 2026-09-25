@@ -1,5 +1,6 @@
 import TowerSectionField from '@/components/TowerSectionField';
 import { TowerSection, resolveTowerSection } from '@/utils/towerSection';
+import { resolvePublishMode } from '@/utils/publishMode';
 import {
   Banner,
   Button,
@@ -17,6 +18,7 @@ import type { FormApi } from "@douyinfe/semi-ui/lib/es/form";
 import {
   type TowerPublishFormPayload,
   fetchPushBuiltTowerToMain,
+  fetchPushDirectTowerToMain,
   fetchStageTmpTowerZipToH5mota,
   fetchTowerCreateFromH5mota,
   fetchTowersByAuthorId,
@@ -142,6 +144,7 @@ const AddTower: FC = () => {
   const formApi = useRef<FormApi<TowerFormValues> | null>(null);
   const [addJson, setAddJson] = useState("");
   const [towerZipSource, setTowerZipSource] = useState<"upload" | "author">("author");
+  const [publishMode, setPublishMode] = useState<"build" | "direct">("build");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [uploadedZip, setUploadedZip] = useState<File | null>(null);
   const [tagChecks, setTagChecks] = useState<string[]>([]);
@@ -156,6 +159,7 @@ const AddTower: FC = () => {
       const api = formApi.current;
       if (!api) return;
       const section = resolveTowerSection(obj);
+      const importedMode = resolvePublishMode(obj.publish_mode);
       const base = emptyForm();
       api.setValues(base);
       for (const key of Object.keys(obj)) {
@@ -164,6 +168,10 @@ const AddTower: FC = () => {
         }
       }
       api.setValue("section", section);
+      setPublishMode(importedMode);
+      if (typeof obj.from_test === 'boolean') {
+        setTowerZipSource(obj.from_test ? 'author' : 'upload');
+      }
       if (typeof obj.tag === "string" && obj.tag) {
         setTagChecks(obj.tag.split("|").filter((t) => TAG_OPTIONS.includes(t)));
       }
@@ -220,6 +228,7 @@ const AddTower: FC = () => {
     Toast.success("已填入英文名、中文名、作者用户编号");
   };
   const submit = async () => {
+    if (publishLoading) return;
     const api = formApi.current;
     if (!api) return;
     try {
@@ -230,6 +239,8 @@ const AddTower: FC = () => {
     }
     const values = api.getValues();
     const publishPayload = buildPublishPayload(values, tagChecks);
+    publishPayload.publish_mode = publishMode;
+    publishPayload.from_test = towerZipSource === "author";
     const { name } = publishPayload;
     const towerFormJson = JSON.stringify(publishPayload);
     setPublishLoading(true);
@@ -263,6 +274,17 @@ const AddTower: FC = () => {
           );
           return;
         }
+      }
+
+      if (publishMode === "direct") {
+        const res = await fetchPushDirectTowerToMain({ name, towerFormJson });
+        toastSubmit(
+          res.code === 0 ? "success" : "error",
+          typeof res.message === "string" && res.message
+            ? res.message
+            : res.code === 0 ? "发布成功" : "免构建发布失败"
+        );
+        return;
       }
 
       const createRes = await fetchTowerCreateFromH5mota({
@@ -372,10 +394,30 @@ const AddTower: FC = () => {
       >
         {({ values, formApi }) => (
           <>
+            <Form.Slot label="发布方式" className={styles.towerSourceSlot}>
+              <RadioGroup
+                name="publishMode"
+                direction="vertical"
+                value={publishMode}
+                disabled={publishLoading}
+                onChange={(e) => setPublishMode(e.target.value as "build" | "direct")}
+              >
+                <Radio value="build">构建后发布（样板游戏）</Radio>
+                <Radio value="direct">免构建直接发布（非样板或已构建游戏）</Radio>
+              </RadioGroup>
+              {publishMode === "direct" && (
+                <Typography.Paragraph type="tertiary" style={{ marginTop: 8, marginBottom: 0 }}>
+                  上传可直接运行的网页 ZIP，index.html 放在压缩包顶层或唯一的顶层文件夹内。
+                  文件原样发布，不压缩脚本、不改写资源；游戏资源请使用相对路径。
+                </Typography.Paragraph>
+              )}
+            </Form.Slot>
             <Form.Slot label="塔文件来源" className={styles.towerSourceSlot}>
               <RadioGroup
+                name="towerZipSource"
                 direction="vertical"
                 value={towerZipSource}
+                disabled={publishLoading}
                 onChange={(e) =>
                   setTowerZipSource((e.target.value as "upload" | "author") ?? "author")
                 }
@@ -513,7 +555,7 @@ const AddTower: FC = () => {
               loading={publishLoading}
               onClick={() => void submit()}
             >
-              发布
+              {publishMode === "direct" ? "直接发布" : "发布"}
             </Button>
           </>
         )}

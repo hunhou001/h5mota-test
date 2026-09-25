@@ -1,5 +1,6 @@
 import axios from "./utils";
 import { isAxiosError } from "axios";
+import type { PublishMode } from '@/utils/publishMode';
 
 /** 主站站点根（测试区页面无对应路由时，外链用户页、塔详情、后台下载等） */
 export const H5MOTA_ORIGIN = "https://h5mota.com";
@@ -15,6 +16,7 @@ export type Up2cosH5motaTowerItem = {
 };
 
 export type Up2cosH5motaTmpRow = {
+  publish_mode?: PublishMode;
   name: string;
   size: string | number;
   comment: string;
@@ -105,6 +107,7 @@ export async function postUp2cosSetData(
     name: string;
     comment: string;
     file: File;
+    publish_mode?: PublishMode;
   },
   options?: {
     onUploadProgress?: (percent: number) => void;
@@ -115,11 +118,12 @@ export async function postUp2cosSetData(
   fd.append("name", params.name);
   fd.append("comment", params.comment);
   fd.append("file", params.file);
+  fd.append("publish_mode", params.publish_mode ?? 'build');
 
   try {
     const { data } = await axios.post<
       Up2cosH5motaSetDataOk | Up2cosH5motaSetDataErr
-    >("/api/up2cos/setData", fd, {
+    >(params.publish_mode === 'direct' ? "/api/up2cos/setDirectData" : "/api/up2cos/setData", fd, {
       withCredentials: true,
       onUploadProgress: (e) => {
         if (!e.total || !options?.onUploadProgress) return;

@@ -1,4 +1,5 @@
 import type { TowerSection } from '@/utils/towerSection';
+import type { PublishMode } from '@/utils/publishMode';
 import axios, {
   ADMIN_LONG_REQUEST_MS,
   BaseResponse,
@@ -106,6 +107,7 @@ export async function fetchUploadTmpTowerZipToH5mota(payload: {
 
 /** 管理发塔页提交的完整塔信息（与主站 add 类字段对齐，供测试区落库与主站 receive 使用） */
 export type TowerPublishFormPayload = {
+  publish_mode?: PublishMode;
   section: TowerSection;
   name: string;
   title: string;
@@ -173,8 +175,25 @@ export function fetchPushBuiltTowerToMain(payload: {
   });
 }
 
+/** 免构建发布：推送本次暂存的原始 ZIP，由主站按静态网页包校验并发布。 */
+export const requestPushDirectTowerToMain = wrapPostJson<
+  { name: string; towerFormJson: string },
+  PushBuiltTowerToMainResponse
+>("/api/admin/pushDirectTowerToMain");
+
+export function fetchPushDirectTowerToMain(payload: {
+  name: string;
+  towerFormJson: string;
+}) {
+  return requestPushDirectTowerToMain(payload, {
+    message: ShowMessage.None,
+    timeout: ADMIN_LONG_REQUEST_MS,
+  });
+}
+
 /** 测试区 `GET /api/admin/auditTowerTmpList`：仅含 `status` 1/2；`title`/`username` 暂为 `name`/`userId` */
 export interface AuditTowerTmpListItem {
+  publish_mode?: PublishMode;
   id: string;
   userId: string;
   name: string;

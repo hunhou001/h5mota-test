@@ -43,7 +43,8 @@ function getStatus(status: string | number): string {
   return (
     {
       "1": "等待审核",
-      "2": "已解压，待部署",
+      "2": "已校验，待发布",
+      "3": "正在发布",
       "6": "解压出错",
       "7": "移动出错",
       "10": "审核通过",
@@ -143,7 +144,7 @@ const AuditUpdate: FC = () => {
         }
         const list = Array.isArray(res.data.list) ? res.data.list : [];
         return list.filter((item: AuditTowerTmpListItem) =>
-          [1, 2].includes(Number(item.status)),
+          [1, 2, 3].includes(Number(item.status)),
         ) as AuditItem[];
       },
     },
@@ -266,7 +267,7 @@ const AuditUpdate: FC = () => {
     setAuditState(AuditState.Confirming);
     const res = await fetchAuditTowerTmpConfirm({
       id: auditItem.id,
-      bgm_remote: bgmremote,
+      bgm_remote: auditItem.publish_mode === 'direct' ? false : bgmremote,
       reset_hot: resethot,
     });
     if (!isApiOk(res.code)) {
@@ -324,7 +325,7 @@ const AuditUpdate: FC = () => {
       dataSource={waitAudit}
       renderItem={(item) => {
         const st = Number(item.status);
-        const passLabel = st === 2 ? "部署" : "通过";
+        const passLabel = st === 3 ? "发布中" : st === 2 ? "部署" : "通过";
         const needUnzip = st !== 2;
         return (
           <List.Item key={item.id} className={styles.listItem}>
@@ -344,6 +345,9 @@ const AuditUpdate: FC = () => {
                     <span>{item.title ?? ""}</span>
                   )}
                 </Typography.Title>
+                <Typography.Text type="tertiary">
+                  {item.publish_mode === 'direct' ? '免构建更新' : '构建后更新'}
+                </Typography.Text>
                 {item.comment ? (
                   <Typography.Paragraph
                     type="tertiary"
@@ -377,7 +381,7 @@ const AuditUpdate: FC = () => {
                     <IconFile className={styles.actionIcon} size="small" />
                     {item.name ? (
                       <a
-                        href={`/api/admin/downloadH5motaSelfUpdateZip?name=${encodeURIComponent(item.name)}`}
+                        href={`/api/admin/downloadH5motaSelfUpdateZip?name=${encodeURIComponent(item.name)}&id=${encodeURIComponent(item.id)}`}
                         target="_blank"
                         rel="noreferrer"
                       >
@@ -394,11 +398,12 @@ const AuditUpdate: FC = () => {
                 <Space wrap>
                   <Button
                     type="primary"
+                    disabled={st === 3}
                     onClick={() => void callAuditModel(item.id, needUnzip)}
                   >
                     {passLabel}
                   </Button>
-                  <Button type="danger" onClick={() => reject(item.id)}>
+                  <Button type="danger" disabled={st === 3} onClick={() => reject(item.id)}>
                     拒绝
                   </Button>
                 </Space>
@@ -471,7 +476,7 @@ const AuditUpdate: FC = () => {
                       <IconFile className={styles.actionIcon} size="small" />
                       {item.name ? (
                         <a
-                          href={`/api/admin/downloadH5motaSelfUpdateZip?name=${encodeURIComponent(item.name)}`}
+                          href={`/api/admin/downloadH5motaSelfUpdateZip?name=${encodeURIComponent(item.name)}&id=${encodeURIComponent(item.id)}`}
                           target="_blank"
                           rel="noreferrer"
                         >
@@ -484,7 +489,7 @@ const AuditUpdate: FC = () => {
                   </div>
                 </div>
                 <div className={styles.itemExtra}>
-                  <div style={{ marginBottom: 8 }}>{getStatus(item.status)}</div>
+                  <div style={{ marginBottom: 8 }}>{item.publish_mode === 'direct' ? '免构建更新 · ' : ''}{getStatus(item.status)}</div>
                   {item.reviewerName ? (
                     <div style={{ marginBottom: 4 }}>
                       {item.reviewerId ? (
@@ -554,7 +559,7 @@ const AuditUpdate: FC = () => {
       </Tabs>
 
       <Modal
-        title={`审核 - ${auditItem?.title ?? ""}`}
+        title={`审核${auditItem?.publish_mode === 'direct' ? '（免构建更新）' : ''} - ${auditItem?.title ?? ""}`}
         visible={modalOpen}
         width="85%"
         okText="确认"
@@ -571,7 +576,7 @@ const AuditUpdate: FC = () => {
           <Banner type="danger" description="解压失败" fullMode={false} />
         ) : auditState !== AuditState.Unzipping ? (
           <div className={styles.modalChecks}>
-            <div className={styles.checkLine}>
+            {auditItem?.publish_mode !== 'direct' && <div className={styles.checkLine}>
               更新第三方音乐:
               <Checkbox
                 checked={bgmremote}
@@ -580,7 +585,7 @@ const AuditUpdate: FC = () => {
                 }
                 style={{ marginLeft: 8 }}
               />
-            </div>
+            </div>}
             <div className={styles.checkLine}>
               重置热度:
               <Checkbox

@@ -1,6 +1,8 @@
 import {
   Button,
   Progress,
+  Radio,
+  RadioGroup,
   Select,
   Table,
   TextArea,
@@ -12,6 +14,7 @@ import { useQuery, useQueryClient } from "react-query";
 import MainHeader from "../../components/MainHeader";
 import styles from "./index.module.less";
 import { userInfoModel } from "@/utils/store";
+import type { PublishMode } from '@/utils/publishMode';
 import {
   formatH5motaTmpSize,
   getUp2cosGetDataLocal,
@@ -31,6 +34,7 @@ type AuditRow = {
   comment: string;
   uploadedAt: string;
   status: string;
+  publishMode: string;
 };
 
 const App: FC = () => {
@@ -46,6 +50,7 @@ const App: FC = () => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadMsg, setUploadMsg] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [publishMode, setPublishMode] = useState<PublishMode>('build');
   /** 对齐 index.js：仅当所选塔 name 变化时覆盖「作者的话」，不因 list 刷新误覆盖用户编辑 */
   const lastSyncedTowerForCommentRef = useRef<string | undefined>(undefined);
 
@@ -86,6 +91,7 @@ const App: FC = () => {
       comment: row.comment,
       uploadedAt: row.uploadTime,
       status: row.status,
+      publishMode: row.publish_mode === 'direct' ? '免构建更新' : '构建后更新',
     }));
   }, [up2cosQuery.data]);
 
@@ -133,11 +139,13 @@ const App: FC = () => {
       return;
     }
     lastSyncedTowerForCommentRef.current = towerId;
+    setPublishMode('build');
     const t = towerList.find((x) => x.name === towerId);
     setCommentText(t?.text ?? "");
   }, [towerId, towerList]);
 
   const handleUpload = async () => {
+    if (uploading) return;
     if (!towerId || towerId === "") {
       setUploadMsg("选择要更新的塔！");
       return;
@@ -166,6 +174,7 @@ const App: FC = () => {
           name: towerId,
           comment,
           file: zipFile,
+          publish_mode: publishMode,
         },
         { onUploadProgress: (p) => setUploadProgress(p) }
       );
@@ -204,6 +213,7 @@ const App: FC = () => {
     { title: "作者的话", dataIndex: "comment" },
     { title: "更新上传时间", dataIndex: "uploadedAt" },
     { title: "审核状态", dataIndex: "status" },
+    { title: "更新方式", dataIndex: "publishMode" },
   ];
 
   /** 对齐参考页 main0 / main1 / main2：仅 getData 成功（code===1）后显示 */
@@ -233,7 +243,8 @@ const App: FC = () => {
             <div className={styles.section}>
               <p>塔名：</p>
               <Select
-                style={{ width: 320 }}
+                style={{ width: 320, maxWidth: '100%' }}
+                disabled={uploading}
                 optionList={towerOptions}
                 value={towerId}
                 placeholder={uid ? "暂无可用塔" : "请先登录"}
@@ -252,10 +263,20 @@ const App: FC = () => {
                 style={{ maxWidth: 400 }}
                 placeholder="在这里填写作者的话，会显示在该塔的底部。"
               />
+              <p style={{ marginTop: 12 }}>更新方式：</p>
+              <RadioGroup name="updatePublishMode" value={publishMode} disabled={uploading}
+                direction="vertical" onChange={(event) => setPublishMode(event.target.value as PublishMode)}>
+                <Radio value="build">构建后更新（样板游戏）</Radio>
+                <Radio value="direct">免构建更新（非样板或已构建游戏）</Radio>
+              </RadioGroup>
+              {publishMode === 'direct' && <Typography.Paragraph type="tertiary" style={{ marginTop: 8 }}>
+                上传可直接运行的网页 ZIP，index.html 位于顶层或唯一的顶层文件夹内。审核通过后原样更新游戏文件。
+              </Typography.Paragraph>}
               <p style={{ marginTop: 12 }}>请选择 zip 格式的文件：</p>
               <input
                 ref={fileInputRef}
                 type="file"
+                disabled={uploading}
                 accept=".zip"
                 onChange={(e) => {
                   const f = e.target.files?.[0] ?? null;
@@ -292,6 +313,7 @@ const App: FC = () => {
             </Typography.Title>
             <Table
               columns={auditColumns}
+              scroll={{ x: 800 }}
               dataSource={auditRows}
               rowKey="key"
               pagination={false}
@@ -302,6 +324,9 @@ const App: FC = () => {
         <div className={styles.instructions}>
           <Typography.Paragraph>
             此页面允许自助更新塔，基本流程如下：
+          </Typography.Paragraph>
+          <Typography.Paragraph>
+            非样板或已构建游戏请选择「免构建更新」，上传可直接运行的完整网页包并提交人工审核。以下全塔属性和样板存档说明适用于样板游戏。
           </Typography.Paragraph>
           <Typography.Title heading={5}>首次发塔：</Typography.Title>
           <ol>
