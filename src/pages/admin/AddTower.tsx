@@ -405,6 +405,9 @@ const AddTower: FC = () => {
                 <Radio value="build">构建后发布（样板游戏）</Radio>
                 <Radio value="direct">免构建直接发布（非样板或已构建游戏）</Radio>
               </RadioGroup>
+              <Typography.Paragraph type="tertiary" style={{ marginTop: 8, marginBottom: 0 }}>
+                使用样板制作的塔，请保留默认的「构建后发布」；非样板塔请先自行构建，再选择「免构建直接发布」，上传可直接运行的网页 ZIP。
+              </Typography.Paragraph>
               {publishMode === "direct" && (
                 <Typography.Paragraph type="tertiary" style={{ marginTop: 8, marginBottom: 0 }}>
                   上传可直接运行的网页 ZIP，index.html 放在压缩包顶层或唯一的顶层文件夹内。

@@ -269,6 +269,9 @@ const App: FC = () => {
                 <Radio value="build">构建后更新（样板游戏）</Radio>
                 <Radio value="direct">免构建更新（非样板或已构建游戏）</Radio>
               </RadioGroup>
+              <Typography.Paragraph type="tertiary" style={{ marginTop: 8 }}>
+                使用样板制作的塔，请保留默认的「构建后更新」；非样板塔请先自行构建，再选择「免构建更新」，上传可直接运行的网页 ZIP。
+              </Typography.Paragraph>
               {publishMode === 'direct' && <Typography.Paragraph type="tertiary" style={{ marginTop: 8 }}>
                 上传可直接运行的网页 ZIP，index.html 位于顶层或唯一的顶层文件夹内。审核通过后原样更新游戏文件。
               </Typography.Paragraph>}
